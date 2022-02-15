@@ -1,2 +1,2 @@
 # Advanced-Creative-Coding
- Reposirty for Advanced Creative Coding, Spring 2022
+ Repository for Advanced Creative Coding, Spring 2022
