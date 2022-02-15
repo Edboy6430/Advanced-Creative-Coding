@@ -1,0 +1,15 @@
+{
+  "name": "webgl",
+  "version": "1.0.0",
+  "description": "test",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Ed Kim",
+  "license": "ISC",
+  "dependencies": {
+    "pixi.js": "^6.2.2",
+    "typescript": "^4.5.5"
+  }
+}
