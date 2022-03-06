@@ -2,6 +2,7 @@ import * as PIXI from 'pixi.js'
 import { Model, SceneState } from './model/model'
 import { SceneOne } from './views/sceneOne'
 import { SceneTwo } from './views/sceneTwo'
+import { SceneThree } from './views/sceneThree'
 import { gsap, random } from "gsap"
 import * as filters from 'pixi-filters'
 import { AdjustmentFilter } from 'pixi-filters'
@@ -11,6 +12,7 @@ import { Container } from 'pixi.js'
 let sceneModel = new Model()
 let sceneOne: SceneOne = new SceneOne(sceneModel)
 let sceneTwo: SceneTwo = new SceneTwo(sceneModel)
+let sceneThree: SceneTwo = new SceneThree(sceneModel)
 
 let tl = gsap.timeline()
 
