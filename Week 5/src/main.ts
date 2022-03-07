@@ -17,11 +17,11 @@ let randomizedItemArray: Array<PIXI.Sprite> = []
 let randomizedColorArray: Array<string> = []
 
 // Creates item textures
-const commonItem = PIXI.Texture.from('assets/Dull Blade.png')
-const uncommonItem = PIXI.Texture.from('assets/Silver Sword.png')
-const rareItem = PIXI.Texture.from('assets/Cool Steel.png')
-const srItem = PIXI.Texture.from('assets/Sacrificial Sword.png')
-const ssrItem = PIXI.Texture.from('assets/Skyward Blade.png')
+const commonItem = PIXI.Texture.from('assets/dull-blade.png')
+const uncommonItem = PIXI.Texture.from('assets/silver-sword.png')
+const rareItem = PIXI.Texture.from('assets/cool-steel.png')
+const srItem = PIXI.Texture.from('assets/sacrificial-sword.png')
+const ssrItem = PIXI.Texture.from('assets/skyward-blade.png')
 
 // Creates an array of items
 const itemArray: Array<PIXI.Texture> = [
