@@ -6,7 +6,7 @@ export class Button {
     text: Text;
 
     fill = 0x00ff00;
-    hoverFill = 0x0000ff;
+    hoverFill = 0xBF5E40; // Edited the hoverfill color from 0x0000FF
     clickFill = 0xff0000;
     width = 200;
     height = 100;
