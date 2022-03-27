@@ -18,11 +18,17 @@ let stats: any;
 
 let cube: THREE.Mesh;
 let plane: THREE.Mesh;
-let iceCreamModel: THREE.Group;
-let exampleTexture: THREE.Texture;
+let leftIceCream: THREE.Group;
+let middleIceCream: THREE.Group;
+let rightIceCream: THREE.Group;
+
+let leftTexture: THREE.Texture;
+let middleTexture: THREE.Texture;
+let rightTexture: THREE.Texture;
 
 import vertexShader from '../resources/shaders/shader.vert?raw';
 import fragmentShader from '../resources/shaders/shader.frag?raw';
+import { ThrowStatement } from 'typescript';
 let shaderMat: ShaderMaterial;
 
 function main() {
@@ -50,13 +56,6 @@ function initScene() {
 
     document.body.appendChild(renderer.domElement);
 
-    // controls = new OrbitControls(camera, renderer.domElement);
-
-    // lightAmbient = new THREE.AmbientLight(0x404040);
-    // scene.add(lightAmbient);
-
-    // Add a point light to add shadows
-    // https://github.com/mrdoob/three.js/pull/14087#issuecomment-431003830
     const shadowIntensity = 0.25;
 
     lightPoint = new THREE.PointLight(0xffffff);
@@ -80,74 +79,104 @@ function initScene() {
 
 
 
-    // Add a cube
-    const geometryBox = new THREE.BoxGeometry();
-    const materialBox = new THREE.MeshPhongMaterial({ color: 0x456789 });
-    cube = new THREE.Mesh(geometryBox, materialBox);
-    cube.castShadow = true;
-    // scene.add(cube);
+    // Loads textures for 3 objects
+    let leftTextureMaterial: THREE.Material;
+    let middleTextureMaterial: THREE.Material;
+    let rightTextureMaterial: THREE.Material;
 
-    // Loads a texture
-    let textureMaterial: THREE.Material;
-    new THREE.TextureLoader().load('/resources/textures/uv_grid_opengl.jpg', function (texture) {
+
+
+    // Loads the texture for the left ice cream
+    new THREE.TextureLoader().load('/resources/textures/pistachio.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-        exampleTexture = texture;
-
-        textureMaterial = new THREE.MeshBasicMaterial({ map: texture });
-        // cube.material = textureMaterial;
+        leftTextureMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
         const loader = new GLTFLoader().setPath('/resources/models/');
-        loader.load('ice_cream_still_life.gltf', function (gltf) {
-            iceCreamModel = gltf.scene;
+        loader.load('ice_cream_left.gltf', function (gltf) {
+            leftIceCream = gltf.scene;
 
-            // interface gltfMesh extends THREE.Object3D<THREE.Event> {
-            //     material: THREE.Material
-            // }
+            interface gltfMesh extends THREE.Object3D<THREE.Event> {
+                material: THREE.Material
+            }
 
-            // console.log(iceCreamModel);
+            leftIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+                (child as gltfMesh).material = leftTextureMaterial;
+            })
 
-            // iceCreamModel.traverse((child: THREE.Object3D<THREE.Event>) => {
-            //     console.log(child);
-            //     console.log(child.type === "Mesh");
-            //     (child as gltfMesh).material = textureMaterial;
-            // })
+            leftIceCream.scale.set(0.01, 0.01, 0.01)
 
-            iceCreamModel.scale.x = 0.01
-            iceCreamModel.scale.y = 0.01
-            iceCreamModel.scale.z = 0.01
+            leftIceCream.position.x = -5
+            leftIceCream.position.y = -2.5
 
-            iceCreamModel.position.y = -10
-            iceCreamModel.position.z = -20
+            leftIceCream.rotation.y = -50
 
-            scene.add(iceCreamModel);
+            scene.add(leftIceCream);
+        });
+    });
+
+    // Loads the texture for the middle ice cream
+    new THREE.TextureLoader().load('/resources/textures/snowcone.jpg', function (texture) {
+
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+        middleTextureMaterial = new THREE.MeshBasicMaterial({ map: texture });
+
+        const loader = new GLTFLoader().setPath('/resources/models/');
+        loader.load('ice_cream_middle.gltf', function (gltf) {
+            middleIceCream = gltf.scene;
+
+            interface gltfMesh extends THREE.Object3D<THREE.Event> {
+                material: THREE.Material
+            }
+
+            middleIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+                (child as gltfMesh).material = middleTextureMaterial;
+            })
+
+            middleIceCream.scale.set(0.004, 0.004, 0.004)
+            middleIceCream.position.x = 0
+            middleIceCream.position.y = -2.5
+
+            middleIceCream.rotation.x -= 0.1
+
+            scene.add(middleIceCream);
+        });
+    });
+
+    // Loads the texture for the right ice cream
+    new THREE.TextureLoader().load('/resources/textures/strawberry.jpg', function (texture) {
+
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+        rightTextureMaterial = new THREE.MeshBasicMaterial({ map: texture });
+
+        const loader = new GLTFLoader().setPath('/resources/models/');
+        loader.load('ice_cream_right.gltf', function (gltf) {
+            rightIceCream = gltf.scene;
+
+            interface gltfMesh extends THREE.Object3D<THREE.Event> {
+                material: THREE.Material
+            }
+
+            rightIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+                (child as gltfMesh).material = rightTextureMaterial;
+            })
+
+            rightIceCream.scale.set(0.0045, 0.0045, 0.0045)
+
+            rightIceCream.position.x = 2.5
+            rightIceCream.position.y = -2.5
+
+            scene.add(rightIceCream);
         });
     });
 
 
-
-    // Add a plane
-    const geometryPlane = new THREE.PlaneBufferGeometry(6, 6, 1, 1);
-    const materialPlane = new THREE.MeshPhongMaterial({ color: 0x666666 });
-
-    const uniforms = {
-        u_time: { type: 'f', value: 1.0 },
-        u_resolution: { type: 'v2', value: new THREE.Vector2(800,800) },
-        u_mouse: { type: 'v2', value: new THREE.Vector2() },
-    };
-
-    shaderMat = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        vertexShader: vertexShader,
-        fragmentShader: fragmentShader,
-    });
-
-    plane = new THREE.Mesh(geometryPlane, materialPlane);
-    plane.position.z = -0.02;
-    plane.receiveShadow = true;
-    // scene.add(plane);
 
     // Init animation
     animate();
@@ -194,15 +223,19 @@ function animate() {
 
     let delta = clock.getDelta();
     
-    shaderMat.uniforms.u_time.value += delta;
+    // shaderMat.uniforms.u_time.value += delta;
 
-    cube.rotation.x += 0.001;
-    cube.rotation.y += 0.0001;
+    // if (leftIceCream != undefined) {
+    //     leftIceCream.rotation.y += 0.01
+    // }
 
-    if (iceCreamModel != undefined) {
-        // iceCreamModel.rotateX(0.0001);
-        iceCreamModel.rotateY(0.005);
-    }
+    // if (middleIceCream != undefined) {
+    //     middleIceCream.rotation.y += 0.01
+    // }
+
+    // if (rightIceCream != undefined) {
+    //     rightIceCream.rotation.y += 0.01
+    // }
 
     if (stats) stats.update();
 
