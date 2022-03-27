@@ -18,7 +18,7 @@ let stats: any;
 
 let cube: THREE.Mesh;
 let plane: THREE.Mesh;
-let exampleModel: THREE.Group;
+let iceCreamModel: THREE.Group;
 let exampleTexture: THREE.Texture;
 
 import vertexShader from '../resources/shaders/shader.vert?raw';
@@ -85,39 +85,46 @@ function initScene() {
     const materialBox = new THREE.MeshPhongMaterial({ color: 0x456789 });
     cube = new THREE.Mesh(geometryBox, materialBox);
     cube.castShadow = true;
-    scene.add(cube);
+    // scene.add(cube);
 
-    // load a texture
-    // let textureMaterial: THREE.Material;
-    // new THREE.TextureLoader().load('/resources/textures/uv_grid_opengl.jpg', function (texture) {
+    // Loads a texture
+    let textureMaterial: THREE.Material;
+    new THREE.TextureLoader().load('/resources/textures/uv_grid_opengl.jpg', function (texture) {
 
-    //     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-    //     texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+        texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+        texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
-    //     exampleTexture = texture;
+        exampleTexture = texture;
 
-    //     textureMaterial = new THREE.MeshBasicMaterial({ map: texture });
-    //     // cube.material = textureMaterial;
+        textureMaterial = new THREE.MeshBasicMaterial({ map: texture });
+        // cube.material = textureMaterial;
 
-    //     const loader = new GLTFLoader().setPath('/resources/models/');
-    //     loader.load('exampleModel.gltf', function (gltf) {
-    //         exampleModel = gltf.scene;
+        const loader = new GLTFLoader().setPath('/resources/models/');
+        loader.load('ice_cream_still_life.gltf', function (gltf) {
+            iceCreamModel = gltf.scene;
 
-    //         interface gltfMesh extends THREE.Object3D<THREE.Event> {
-    //             material: THREE.Material
-    //         }
+            // interface gltfMesh extends THREE.Object3D<THREE.Event> {
+            //     material: THREE.Material
+            // }
 
-    //         console.log(exampleModel);
+            // console.log(iceCreamModel);
 
-    //         exampleModel.traverse((child: THREE.Object3D<THREE.Event>) => {
-    //             console.log(child);
-    //             console.log(child.type === "Mesh");
-    //             (child as gltfMesh).material = textureMaterial;
-    //         })
+            // iceCreamModel.traverse((child: THREE.Object3D<THREE.Event>) => {
+            //     console.log(child);
+            //     console.log(child.type === "Mesh");
+            //     (child as gltfMesh).material = textureMaterial;
+            // })
 
-    //         scene.add(exampleModel);
-    //     });
-    // });
+            iceCreamModel.scale.x = 0.01
+            iceCreamModel.scale.y = 0.01
+            iceCreamModel.scale.z = 0.01
+
+            iceCreamModel.position.y = -10
+            iceCreamModel.position.z = -20
+
+            scene.add(iceCreamModel);
+        });
+    });
 
 
 
@@ -138,9 +145,9 @@ function initScene() {
     });
 
     plane = new THREE.Mesh(geometryPlane, materialPlane);
-    plane.position.z = -2;
+    plane.position.z = -0.02;
     plane.receiveShadow = true;
-    scene.add(plane);
+    // scene.add(plane);
 
     // Init animation
     animate();
@@ -189,12 +196,12 @@ function animate() {
     
     shaderMat.uniforms.u_time.value += delta;
 
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
+    cube.rotation.x += 0.001;
+    cube.rotation.y += 0.0001;
 
-    if (exampleModel != undefined) {
-        exampleModel.rotateX(0.01);
-        exampleModel.rotateY(0.01);
+    if (iceCreamModel != undefined) {
+        // iceCreamModel.rotateX(0.0001);
+        iceCreamModel.rotateY(0.005);
     }
 
     if (stats) stats.update();
