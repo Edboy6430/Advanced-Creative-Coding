@@ -88,14 +88,14 @@ function initScene() {
 
     // Loads the texture for the left ice cream
     // '/resources/textures/pistachio.jpg'
-    new THREE.TextureLoader().load('/dist/assets/pistachio.jpg', function (texture) {
+    new THREE.TextureLoader().load('../dist/assets/pistachio.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
         leftTextureMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
-        const loader = new GLTFLoader().setPath('/resources/models/');
+        const loader = new GLTFLoader().setPath('../resources/models/');
         loader.load('ice_cream_left.gltf', function (gltf) {
             leftIceCream = gltf.scene;
 
@@ -119,14 +119,14 @@ function initScene() {
     });
 
     // Loads the texture for the middle ice cream
-    new THREE.TextureLoader().load('/dist/assets/snowcone.jpg', function (texture) {
+    new THREE.TextureLoader().load('../dist/assets/snowcone.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
         middleTextureMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
-        const loader = new GLTFLoader().setPath('/resources/models/');
+        const loader = new GLTFLoader().setPath('../resources/models/');
         loader.load('ice_cream_middle.gltf', function (gltf) {
             middleIceCream = gltf.scene;
 
@@ -149,14 +149,14 @@ function initScene() {
     });
 
     // Loads the texture for the right ice cream
-    new THREE.TextureLoader().load('/dist/assets/strawberry.jpg', function (texture) {
+    new THREE.TextureLoader().load('../dist/assets/strawberry.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
 
         rightTextureMaterial = new THREE.MeshBasicMaterial({ map: texture });
 
-        const loader = new GLTFLoader().setPath('/resources/models/');
+        const loader = new GLTFLoader().setPath('../resources/models/');
         loader.load('ice_cream_right.gltf', function (gltf) {
             rightIceCream = gltf.scene;
 
