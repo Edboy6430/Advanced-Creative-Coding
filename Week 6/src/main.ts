@@ -87,7 +87,8 @@ function initScene() {
 
 
     // Loads the texture for the left ice cream
-    new THREE.TextureLoader().load('/resources/textures/pistachio.jpg', function (texture) {
+    // '/resources/textures/pistachio.jpg'
+    new THREE.TextureLoader().load('/assets/pistachio.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -118,7 +119,7 @@ function initScene() {
     });
 
     // Loads the texture for the middle ice cream
-    new THREE.TextureLoader().load('/resources/textures/snowcone.jpg', function (texture) {
+    new THREE.TextureLoader().load('/assets/snowcone.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -148,7 +149,7 @@ function initScene() {
     });
 
     // Loads the texture for the right ice cream
-    new THREE.TextureLoader().load('/resources/textures/strawberry.jpg', function (texture) {
+    new THREE.TextureLoader().load('/assets/strawberry.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
