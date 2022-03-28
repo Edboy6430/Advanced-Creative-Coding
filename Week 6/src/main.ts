@@ -16,15 +16,9 @@ let lightPoint: THREE.PointLight;
 let controls: OrbitControls;
 let stats: any;
 
-let cube: THREE.Mesh;
-let plane: THREE.Mesh;
 let leftIceCream: THREE.Group;
 let middleIceCream: THREE.Group;
 let rightIceCream: THREE.Group;
-
-let leftTexture: THREE.Texture;
-let middleTexture: THREE.Texture;
-let rightTexture: THREE.Texture;
 
 import vertexShader from '../resources/shaders/shader.vert?raw';
 import fragmentShader from '../resources/shaders/shader.frag?raw';
@@ -56,6 +50,8 @@ function initScene() {
 
     document.body.appendChild(renderer.domElement);
 
+    controls = new OrbitControls(camera, renderer.domElement);
+
     const shadowIntensity = 0.25;
 
     lightPoint = new THREE.PointLight(0xffffff);
@@ -72,10 +68,26 @@ function initScene() {
     const mapSize = 1024; // Default 512
     const cameraNear = 0.5; // Default 0.5
     const cameraFar = 500; // Default 500
+
     lightPoint.shadow.mapSize.width = mapSize;
     lightPoint.shadow.mapSize.height = mapSize;
     lightPoint.shadow.camera.near = cameraNear;
     lightPoint.shadow.camera.far = cameraFar;
+
+
+
+    const uniforms = {
+		u_time: { type: 'f', value: 1.0 },
+		u_resolution: { type: 'v2', value: new THREE.Vector2(800, 800) },
+		u_mouse: { type: 'v2', value: new THREE.Vector2() }
+	};
+
+	shaderMat = new THREE.ShaderMaterial({
+		uniforms: uniforms,
+		vertexShader: vertexShader,
+		fragmentShader: fragmentShader,
+		side: THREE.DoubleSide,
+	});
 
 
 
@@ -87,8 +99,7 @@ function initScene() {
 
 
     // Loads the texture for the left ice cream
-    // '/resources/textures/pistachio.jpg'
-    new THREE.TextureLoader().load('../dist/assets/pistachio.jpg', function (texture) {
+    new THREE.TextureLoader().load('../resources/textures/pistachio.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -119,7 +130,7 @@ function initScene() {
     });
 
     // Loads the texture for the middle ice cream
-    new THREE.TextureLoader().load('../dist/assets/snowcone.jpg', function (texture) {
+    new THREE.TextureLoader().load('../resources/textures/snowcone.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -149,7 +160,7 @@ function initScene() {
     });
 
     // Loads the texture for the right ice cream
-    new THREE.TextureLoader().load('../dist/assets/strawberry.jpg', function (texture) {
+    new THREE.TextureLoader().load('../resources/textures/strawberry.jpg', function (texture) {
 
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
@@ -179,6 +190,17 @@ function initScene() {
 
 
 
+    // Controls for moving camera
+    controls.addEventListener('dragstart', function (event) {
+		event.object.material.emissive.set(0xaaaaaa);
+	});
+
+	controls.addEventListener('dragend', function (event) {
+		event.object.material.emissive.set(0x000000);
+	});
+
+
+
     // Init animation
     animate();
 }
@@ -195,7 +217,7 @@ function initListeners() {
 
                 const { domElement } = renderer;
 
-                // Makse sure scene is rendered.
+                // Makes sure scene is rendered
                 renderer.render(scene, camera);
 
                 const src = domElement.toDataURL();
@@ -224,23 +246,23 @@ function animate() {
 
     let delta = clock.getDelta();
     
-    // shaderMat.uniforms.u_time.value += delta;
+    shaderMat.uniforms.u_time.value += delta;
 
-    // if (leftIceCream != undefined) {
-    //     leftIceCream.rotation.y += 0.01
-    // }
+    if (leftIceCream != undefined) {
+        leftIceCream.rotation.z += 0.001
+    }
 
-    // if (middleIceCream != undefined) {
-    //     middleIceCream.rotation.y += 0.01
-    // }
+    if (middleIceCream != undefined) {
+        middleIceCream.rotation.x += 0.001
+    }
 
-    // if (rightIceCream != undefined) {
-    //     rightIceCream.rotation.y += 0.01
-    // }
+    if (rightIceCream != undefined) {
+        rightIceCream.rotation.y += 0.001
+    }
 
     if (stats) stats.update();
 
-    // if (controls) controls.update();
+    if (controls) controls.update();
 
     renderer.render(scene, camera);
 }
