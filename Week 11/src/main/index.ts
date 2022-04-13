@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from "path";
+import { floorPowerOfTwo } from 'three/src/math/MathUtils';
 
 
 // be sure to upload StandardFirmataPlus to your board
@@ -42,13 +43,14 @@ const createWindow = (): void => {
 
   board.on("ready", () => {
     let led = new five.Led(13);
-    led.blink(1000);
+    led.blink(500);
     ipcMain.handle('write:LEDStatus', (event: any ,value: 1|0) => {
       console.log(value)
       if (value === 0) {
         led.off()
       } else {
         led.on()
+        console.log("ON")
       }
     })
 
@@ -66,9 +68,22 @@ const createWindow = (): void => {
     //   threshold: 5
     // });
     // potentiometer.on("change", function () {
-    //   console.log(this.value / 1023.0)
+    //   console.log(floor(this.value / 1023.0))
     //   mainWindow.webContents.send('update-sprite-x', this.value/1023.0)
-    // });
+    // }); 
+
+
+
+    let joystick = new five.Joystick({
+      pins: ["A0", "A1"]
+    })
+
+    joystick.on("change", function() {
+      console.log("Joystick")
+      console.log("x: " + String(this.x))
+      console.log("y: " + String(this.y))
+      console.log("---------------")
+    })
   })
 
 //   setInterval(()=>{
