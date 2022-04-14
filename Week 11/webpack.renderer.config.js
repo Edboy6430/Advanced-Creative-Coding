@@ -7,7 +7,7 @@ rules.push({
 });
 
 rules.push({
-  test: /\.(png|svg|jpg|jpeg|gif|frag|vert)$/i,
+  test: /\.(png|svg|jpg|jpeg|gif|frag|vert|gltf)$/i,
   type: 'asset/resource',
 });
 

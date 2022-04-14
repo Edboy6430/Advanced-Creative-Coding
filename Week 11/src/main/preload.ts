@@ -6,7 +6,7 @@ import { contextBridge, ipcRenderer } from "electron"
 contextBridge.exposeInMainWorld("electronAPI", {
 	handleBackground: (callback: any) => { return ipcRenderer.on("update-background", callback) },
 
-	changeX: (callback: any) => ipcRenderer.on("change-x", callback),
+	rotateXAxis: (callback: any) => ipcRenderer.on("rotate-x-axis", callback),
 
-	changeY: (callback: any) => ipcRenderer.on("change-y", callback)
+	rotateYAxis: (callback: any) => ipcRenderer.on("rotate-y-axis", callback)
 })
