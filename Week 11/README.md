@@ -1,1 +1,1 @@
-# three-ts-electron-quickstart
+# pixi-ts-electron-quickstart

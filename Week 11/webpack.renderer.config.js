@@ -7,13 +7,8 @@ rules.push({
 });
 
 rules.push({
-  test: /\.(png|svg|jpg|jpeg|gif|gltf)$/i,
+  test: /\.(png|svg|jpg|jpeg|gif|frag|vert)$/i,
   type: 'asset/resource',
-});
-
-rules.push({
-  test: /\.(frag|vert)$/i,
-  use: 'raw-loader',
 });
 
 module.exports = {

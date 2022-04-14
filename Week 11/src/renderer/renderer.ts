@@ -1,220 +1,308 @@
-import './style.css';
+import './index.css';
 import * as THREE from 'three';
-import { Raycaster, ShaderMaterial, Shading, Vector2 } from 'three';
 import Stats from 'three/examples/jsm/libs/stats.module';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { DragControls } from 'three/examples/jsm/controls/DragControls.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import * as DAT from 'dat.gui';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { CubeReflectionMapping, ShaderMaterial } from 'three';
+import { ThrowStatement } from 'typescript';
 
-import vertexShader from './assets/shaders/shader.vert';
-import fragmentShader from './assets/shaders/shader.frag';
-
-import { ViewOne } from './Views/ViewOne';
-import { BaseView } from './Views/BaseView';
-import { ViewTwo } from './Views/ViewTwo';
-
-let model = {
-	groupX: 0,
-	groupY: 0,
-	groupAngle: 0,
-	activeView: 0,
-    vertexShader: vertexShader,
-    fragmentShader: fragmentShader,
-}
+import iceCreamModelPath from './assets/ice_cream_middle.gltf'
+import { ModuleNode } from 'vite';
 
 let renderer: THREE.WebGLRenderer;
+let scene: THREE.Scene;
+let camera: THREE.PerspectiveCamera;
 let clock = new THREE.Clock();
-let controls: DragControls;
+
+let lightPoint: THREE.PointLight;
+
+let controls: OrbitControls;
 let stats: any;
-let raycaster: THREE.Raycaster;
-let pointerPosition: THREE.Vector2;
-let viewOne: ViewOne;
-let viewTwo: ViewTwo;
-let views: BaseView[] = [];
+
+let leftIceCream: THREE.Group;
+let middleIceCream: THREE.Group;
+let rightIceCream: THREE.Group;
+
+let debugCube: THREE.Box3
+let debugCubeMesh: THREE.Mesh
+
+let exampleTexture: THREE.Texture
+
 let shaderMat: ShaderMaterial;
 
 function main() {
-    // loadShaders()
-	initScene();
-	initStats();
-	initGUI();
-	initListeners();
+    initScene();
+    initStats();
+    initListeners();
 }
 
 function initStats() {
-	stats = new (Stats as any)();
-	document.body.appendChild(stats.dom);
-}
-
-function initGUI() {
-	const gui = new DAT.GUI();
-	gui.add(model, 'groupX', -4, 4, 0.1)
-	gui.add(model, 'groupY', -3, 3, 0.1)
-	gui.add(model, 'groupAngle', 0, Math.PI*2.0, 0.1)
+    stats = new (Stats as any)();
+    document.body.appendChild(stats.dom);
 }
 
 function initScene() {
+    scene = new THREE.Scene();
 
-	renderer = new THREE.WebGLRenderer();
-	renderer.shadowMap.enabled = true;
-	renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-	renderer.setPixelRatio(window.devicePixelRatio);
-	renderer.setSize(window.innerWidth, window.innerHeight);
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 5;
 
-	document.body.appendChild(renderer.domElement);
+    renderer = new THREE.WebGLRenderer();
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(window.innerWidth, window.innerHeight);
 
-	viewOne = new ViewOne(model, renderer);
-	views.push(viewOne);
+    document.body.appendChild(renderer.domElement);
 
-	viewOne.scene.background = new THREE.Color(0xffffff)
+    controls = new OrbitControls(camera, renderer.domElement);
 
-	viewTwo = new ViewTwo(model, renderer);
-	views.push(viewTwo);
+    const shadowIntensity = 0.25;
 
-	// controls = new OrbitControls(camera, renderer.domElement);
+    lightPoint = new THREE.PointLight(0xffffff);
+    lightPoint.position.set(-0.5, 0.5, 4);
+    lightPoint.castShadow = true;
+    lightPoint.intensity = shadowIntensity;
+    scene.add(lightPoint);
 
-	raycaster = new THREE.Raycaster();
-	pointerPosition = new THREE.Vector2(0,0);
+    const lightPoint2 = lightPoint.clone();
+    lightPoint2.intensity = 1 - shadowIntensity;
+    lightPoint2.castShadow = false;
+    scene.add(lightPoint2);
 
-	const uniforms = {
+    const mapSize = 1024; // Default 512
+    const cameraNear = 0.5; // Default 0.5
+    const cameraFar = 500; // Default 500
+
+    lightPoint.shadow.mapSize.width = mapSize;
+    lightPoint.shadow.mapSize.height = mapSize;
+    lightPoint.shadow.camera.near = cameraNear;
+    lightPoint.shadow.camera.far = cameraFar;
+
+
+
+    const uniforms = {
 		u_time: { type: 'f', value: 1.0 },
 		u_resolution: { type: 'v2', value: new THREE.Vector2(800, 800) },
-		// u_mouse: { type: 'v2', value: new THREE.Vector2() },
-	};
+		u_mouse: { type: 'v2', value: new THREE.Vector2() }
+	}
 
 	shaderMat = new THREE.ShaderMaterial({
 		uniforms: uniforms,
-		vertexShader: vertexShader,
-		fragmentShader: fragmentShader,
 		side: THREE.DoubleSide,
-	});
+	})
 
-	// Init animation
-	animate();
+
+
+    // Debug Cube
+    const boxGeometry = new THREE.BoxGeometry()
+    const boxMaterial = new THREE.MeshPhongMaterial({ color: 0xFF00FF })
+    
+    debugCubeMesh = new THREE.Mesh(boxGeometry, boxMaterial)
+
+    debugCubeMesh.scale.set(2.5, 2.5, 2.5)
+
+    scene.add(debugCubeMesh)
+
+
+
+    // // Loads textures for 3 objects
+    // let leftTextureMaterial: THREE.Material
+    // let middleTextureMaterial: THREE.Material
+    // let rightTextureMaterial: THREE.Material
+
+
+
+    // // Loads the texture for the left ice cream
+    // new THREE.TextureLoader().load('../assets/pistachio.jpg', function (texture) {
+
+    //     texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+    //     texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+
+    //     leftTextureMaterial = new THREE.MeshBasicMaterial({ map: texture })
+
+    //     const loader = new GLTFLoader().setPath('../assets/')
+    //     loader.load('ice_cream_left.gltf', function (gltf) {
+    //         leftIceCream = gltf.scene
+
+    //         interface gltfMesh extends THREE.Object3D<THREE.Event> {
+    //             material: THREE.Material
+    //         }
+
+    //         leftIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+    //             (child as gltfMesh).material = leftTextureMaterial
+    //         })
+
+    //         leftIceCream.scale.set(0.01, 0.01, 0.01)
+
+    //         leftIceCream.position.x = -5
+    //         leftIceCream.position.y = -2.5
+
+    //         leftIceCream.rotation.y = -50
+
+    //         scene.add(leftIceCream)
+    //     })
+    // })
+
+    // // Loads the texture for the middle ice cream
+    // new THREE.TextureLoader().load('../assets/snowcone.jpg', function (texture) {
+
+    //     texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+    //     texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+
+    //     middleTextureMaterial = new THREE.MeshBasicMaterial({ map: texture })
+
+    //     const loader = new GLTFLoader().setPath('../assets/')
+    //     loader.load('ice_cream_middle.gltf', function (gltf) {
+    //         middleIceCream = gltf.scene
+
+    //         interface gltfMesh extends THREE.Object3D<THREE.Event> {
+    //             material: THREE.Material
+    //         }
+
+    //         middleIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+    //             (child as gltfMesh).material = middleTextureMaterial;
+    //         })
+
+    //         middleIceCream.scale.set(0.004, 0.004, 0.004)
+    //         middleIceCream.position.x = 0
+    //         middleIceCream.position.y = -2.5
+
+    //         middleIceCream.rotation.x -= 0.1
+
+    //         scene.add(middleIceCream)
+    //     })
+    // })
+
+    // // Loads the texture for the right ice cream
+    // new THREE.TextureLoader().load('../assets/strawberry.jpg', function (texture) {
+
+    //     texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+    //     texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
+
+    //     rightTextureMaterial = new THREE.MeshBasicMaterial({ map: texture })
+
+    //     const loader = new GLTFLoader().setPath('../assets/')
+    //     loader.load('ice_cream_right.gltf', function (gltf) {
+    //         rightIceCream = gltf.scene
+
+    //         interface gltfMesh extends THREE.Object3D<THREE.Event> {
+    //             material: THREE.Material
+    //         }
+
+    //         rightIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+    //             (child as gltfMesh).material = rightTextureMaterial
+    //         })
+
+    //         rightIceCream.scale.set(0.0045, 0.0045, 0.0045)
+
+    //         rightIceCream.position.x = 2.5
+    //         rightIceCream.position.y = -2.5
+
+    //         scene.add(rightIceCream)
+    //     })
+    // })
+
+
+
+    // Controls for moving camera
+    controls.addEventListener('dragstart', function (event) {
+		event.object.material.emissive.set(0xaaaaaa)
+	})
+
+	controls.addEventListener('dragend', function (event) {
+		event.object.material.emissive.set(0x000000)
+	})
+
+
+
+    // Init animation
+    animate()
 }
 
 function initListeners() {
+    window.addEventListener('resize', onWindowResize, false);
 
-	window.electronAPI.handleBackground((event:any, value:any) => {
-		console.log(event)
-		console.log(value)
-		viewTwo.scene.background = new THREE.Color(value)
-	})
+    window.addEventListener('keydown', (event) => {
+        const { key } = event
 
-	window.addEventListener('resize', onWindowResize, false);
+        switch (key) {
+            case 'e':
+                const win = window.open('', 'Canvas Image')
 
-	window.addEventListener('pointermove', onPointerMove);
+                const { domElement } = renderer
 
-	window.addEventListener('keydown', (event) => {
-		const { key } = event;
-		// console.log(key);
+                // Makes sure scene is rendered
+                renderer.render(scene, camera)
 
-		switch (key) {
-			case 'e':
-				const win = window.open('', 'Canvas Image');
+                const src = domElement.toDataURL()
 
-				const { domElement } = renderer;
+                if (!win) return
 
-				// Makse sure scene is rendered.
-                switch (model.activeView) {
-                    case 0:
-                        renderer.render(viewOne.scene, viewOne.camera);
-                        break;
-            
-                    case 1:
-                        renderer.render(viewTwo.scene, viewTwo.camera);
-                        break;
-            
-                    default:
-                        break;
-                }
+                win.document.write(`<img src='${src}' width='${domElement.width}' height='${domElement.height}'>`)
+                break
 
-				const src = domElement.toDataURL();
+            default:
+                break
+        }
+    })
 
-				if (!win) return;
 
-				win.document.write(`<img src='${src}' width='${domElement.width}' height='${domElement.height}'>`);
-				break;
 
-			case 'ArrowRight':
-				model.activeView = (model.activeView + 1) % views.length
-				break;
+    window.electronAPI.changeX((event: any, value: any) => {
+        debugCubeMesh.position.x = value * 100
+    })
 
-			case 'ArrowLeft':
-				model.activeView = (model.activeView - 1)
-				if (model.activeView < 0) {
-					model.activeView = views.length - 1;
-				}
-				break;
-
-			default:
-				break;
-		}
-	});
+    window.electronAPI.changeY((event: any, value: any) => {
+        debugCubeMesh.position.y = value * 100
+    })
 }
 
 function onWindowResize() {
-	viewOne.onWindowResize();
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
-
-function onPointerMove(event: any) {
-	pointerPosition.x = (event.clientX / window.innerWidth) * 2 - 1;
-	pointerPosition.y = -(event.clientY / window.innerHeight) * 2 + 1;
-}
-
 
 function animate() {
-	requestAnimationFrame(() => {
-		animate();
-	});
+    requestAnimationFrame(() => {
+        animate()
+    })
 
-	let delta = clock.getDelta();
+    // if (leftIceCream != undefined) {
+    //     leftIceCream.rotation.z += 0.001
+    // }
 
-	switch (model.activeView) {
-		case 0:
-			viewOne.update(clock,delta);
-			break;
+    // if (middleIceCream != undefined) {
+    //     middleIceCream.rotation.x += 0.001
+    // }
 
-		case 1:
-			viewTwo.update(clock,delta);
-			break;
+    // if (rightIceCream != undefined) {
+    //     rightIceCream.rotation.y += 0.001
+    // }
 
-		default:
-			break;
-	}
+    if (stats) stats.update()
 
+    if (controls) controls.update()
 
-	if (stats) stats.update();
-
-	// if (controls) controls.update();
-
-	renderer.render(views[model.activeView].scene, views[model.activeView].camera);
+    renderer.render(scene, camera)
 }
 
-main();
-
-
-interface MeshObj extends THREE.Object3D<THREE.Event> {
-	material: THREE.MeshPhongMaterial;
-}
+main()
 
 interface gltfMesh extends THREE.Object3D<THREE.Event> {
-	material: THREE.Material;
-}
-
-interface ColorMaterial extends THREE.Material {
-	color: THREE.Color;
+    material: THREE.MeshPhongMaterial
 }
 
 export interface IElectronAPI {
-	handleBackground: (callback: (event: any, value: any) => void) => void;
-	// updateSpriteX: (callback: (event:any, value:any) => void) => void,
-	// writeLEDStatus: (onOff:1|0) => any
+	handleColor: (callback: (event: any, value: any) => void) => void
+
+	changeX: (callback: (event: any, value: any) => void) => void
+    changeY: (callback: (event: any, value: any) => void) => void
 }
 
 declare global {
 	interface Window {
-		electronAPI: IElectronAPI;
+		electronAPI: IElectronAPI
 	}
 }

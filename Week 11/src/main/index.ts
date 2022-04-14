@@ -1,7 +1,6 @@
+
 import { app, BrowserWindow, ipcMain } from 'electron';
 import * as path from "path";
-import { floorPowerOfTwo } from 'three/src/math/MathUtils';
-
 
 // be sure to upload StandardFirmataPlus to your board
 // and run 'npm run rebuild' so johnny-five is compatible
@@ -10,7 +9,7 @@ const board = new five.Board({
   // name of the port your arduino is connected to
   // on mac this is probably "dev/tty/[something]"
   // on windows this is probably "COM[number]"
-    port: "COM5",
+  port: "COM5",
   repl: false
 });
 
@@ -34,43 +33,42 @@ const createWindow = (): void => {
       contextIsolation: true,
       preload: path.join(__dirname, "./preload.js"),
     },
-    width: 800,
-  });
+    width: 800
+  })
 
   // and load the index.html of the app.
-  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
+  mainWindow.loadURL(MAIN_WINDOW_WEBPACK_ENTRY)
 
 
   board.on("ready", () => {
-    let led = new five.Led(13);
-    led.blink(500);
-    ipcMain.handle('write:LEDStatus', (event: any ,value: 1|0) => {
-      console.log(value)
-      if (value === 0) {
-        led.off()
-      } else {
-        led.on()
-        console.log("ON")
-      }
-    })
+    let led = new five.Led(13)
+    led.blink(1000)
+    // ipcMain.handle('write:LEDStatus', (event: any ,value: 1|0) => {
+    //   console.log(value)
+    //   if (value === 0) {
+    //     led.off()
+    //   } else {
+    //     led.on()
+    //   }
+    // })
 
-    let button = new five.Button(8);
-    button.on("press", () => {
-      console.log("button pressed")
-      const color = Math.round(Math.random() * 0xffffff);
-      console.log(color)
-      mainWindow.webContents.send('update-background', color)
-    })
+    // let button = new five.Button(8)
+    // button.on("press", () => {
+    //   console.log("button pressed")
+    //   const color = Math.round(Math.random() * 0xffffff)
+    //   console.log(color)
+    //   mainWindow.webContents.send('update-color', color)
+    // })
 
     // let potentiometer = new five.Sensor({
     //   pin: "A0",
     //   frequency: 250,
     //   threshold: 5
-    // });
+    // })
     // potentiometer.on("change", function () {
-    //   console.log(floor(this.value / 1023.0))
-    //   mainWindow.webContents.send('update-sprite-x', this.value/1023.0)
-    // }); 
+    //   console.log(this.value / 1023.0)
+    //   mainWindow.webContents.send('update-position-x', (this.value / 1023.0) * 2.0 - 1.0)
+    // })
 
 
 
@@ -82,7 +80,10 @@ const createWindow = (): void => {
       console.log("Joystick")
       console.log("x: " + String(this.x))
       console.log("y: " + String(this.y))
-      console.log("---------------")
+      console.log("\n")
+
+      mainWindow.webContents.send("change-x", this.x / 100)
+      mainWindow.webContents.send("change-y", this.y / 100)
     })
   })
 
