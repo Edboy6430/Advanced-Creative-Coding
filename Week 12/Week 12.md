@@ -9,8 +9,12 @@
 
 
 </pre>
-### Inspiration
+<br>
+<br>
+<br>
+## Inspiration
 ![Example of Capacitive Touch Sensors Used](https://cdn-shop.adafruit.com/970x728/2024-03.jpg)
+<br>
 I was inspired by YouTube videos I've seen of people using these sensors to make wacky controllers to play games,
 anywhere from Guitar Hero, Dark Souls, and first-person shooters:
 <br>
@@ -25,5 +29,5 @@ while using the Arduino to put in controls and put out values in interesting way
 
 
 </pre>
-### Challenges
+## Challenges
 Sourcing the needed hardware has already been solved. A 12 x Capacitive Touch Shield for Arduino is listed for $12.50
