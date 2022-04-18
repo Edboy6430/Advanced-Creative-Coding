@@ -9,9 +9,8 @@
 ![Example of Capacitive Touch Sensors Used](https://cdn-shop.adafruit.com/970x728/2024-03.jpg)
 <br></br>
 I was inspired by YouTube videos I've seen of people using these sensors to make wacky controllers to play games,
-anywhere from Guitar Hero, Dark Souls, and first-person shooters:
-<br></br>
-[YouTube Video of a livestreamer playing Dark Souls with bananas](https://www.youtube.com/watch?v=v1F58OCqMEI)
+anywhere from Guitar Hero, Dark Souls, and first-person shooters: 
+[Livestreamer playing Dark Souls with bananas](https://www.youtube.com/watch?v=v1F58OCqMEI)
 <br></br>
 Now that I have my own Arduino, I'd like to do something similar and make a simple game using what I've learned so far,
 while using the Arduino to put in controls and put out values in interesting ways.
