@@ -20,6 +20,9 @@ let leftIceCream: THREE.Group
 let middleIceCream: THREE.Group
 let rightIceCream: THREE.Group
 
+let rotationX = 0
+let rotationY = 0
+
 import leftModelPath from "./assets/ice_cream_left.gltf"
 import middleModelPath from "./assets/ice_cream_middle.gltf"
 import rightModelPath from "./assets/ice_cream_right.gltf"
@@ -242,7 +245,7 @@ function initListeners() {
 
                 if (!win) return
 
-                win.document.write(`<img src='${src}' width='${domElement.width}' height='${domElement.height}'>`)
+                win.document.write(`<img src='${ src }' width='${ domElement.width }' height='${ domElement.height }'>`)
                 break
 
             default:
@@ -253,15 +256,19 @@ function initListeners() {
 
 
     window.electronAPI.rotateXAxis((event: any, value: any) => {
-        leftIceCream.rotation.x += value * 10
-        middleIceCream.rotation.x += value * 10
-        rightIceCream.rotation.x += value * 10
+        // leftIceCream.rotation.x += value * 10
+        // middleIceCream.rotation.x += value * 10
+        // rightIceCream.rotation.x += value * 10
+
+        rotationX = value * 10
     })
 
     window.electronAPI.rotateYAxis((event: any, value: any) => {
-        leftIceCream.rotation.y += value * 10
-        middleIceCream.rotation.y += value * 10
-        rightIceCream.rotation.y += value * 10
+        // leftIceCream.rotation.y += value * 10
+        // middleIceCream.rotation.y += value * 10
+        // rightIceCream.rotation.y += value * 10
+
+        rotationY = value * 10
     })
 }
 
@@ -275,6 +282,14 @@ function animate() {
     requestAnimationFrame(() => {
         animate()
     })
+
+        leftIceCream.rotation.x += rotationX
+        middleIceCream.rotation.x += rotationX
+        rightIceCream.rotation.x += rotationX
+
+        leftIceCream.rotation.y += rotationY
+        middleIceCream.rotation.y += rotationY
+        rightIceCream.rotation.y += rotationY
 
     debugCubeMesh.rotation.x -= 0.001
     debugCubeMesh.rotation.z -= 0.001
