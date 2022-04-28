@@ -1,9 +1,9 @@
-import './index.css';
-import * as THREE from 'three';
-import Stats from 'three/examples/jsm/libs/stats.module';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
-import { CubeReflectionMapping, ShaderMaterial } from 'three'
+import "./index.css"
+import * as THREE from "three"
+import Stats from "three/examples/jsm/libs/stats.module"
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import { CubeReflectionMapping, ShaderMaterial } from "three"
 
 
 
@@ -39,17 +39,20 @@ let exampleTexture: THREE.Texture
 let shaderMat: ShaderMaterial
 
 function main() {
+
     initScene()
     initStats()
     initListeners()
 }
 
 function initStats() {
+
     stats = new (Stats as any)()
     document.body.appendChild(stats.dom)
 }
 
 function initScene() {
+
     scene = new THREE.Scene()
 
     camera = new THREE.PerspectiveCamera(75, (window.innerWidth / window.innerHeight), 0.1, 1000)
@@ -78,24 +81,26 @@ function initScene() {
     lightPoint2.castShadow = false
     scene.add(lightPoint2)
 
-    const mapSize = 1024; // Default 512
-    const cameraNear = 0.5; // Default 0.5
-    const cameraFar = 500; // Default 500
+    const mapSize = 1024 // Default 512
+    const cameraNear = 0.5 // Default 0.5
+    const cameraFar = 500 // Default 500
 
-    lightPoint.shadow.mapSize.width = mapSize;
-    lightPoint.shadow.mapSize.height = mapSize;
-    lightPoint.shadow.camera.near = cameraNear;
-    lightPoint.shadow.camera.far = cameraFar;
+    lightPoint.shadow.mapSize.width = mapSize
+    lightPoint.shadow.mapSize.height = mapSize
+    lightPoint.shadow.camera.near = cameraNear
+    lightPoint.shadow.camera.far = cameraFar
 
 
 
     const uniforms = {
-		u_time: { type: 'f', value: 1.0 },
-		u_resolution: { type: 'v2', value: new THREE.Vector2(800, 800) },
-		u_mouse: { type: 'v2', value: new THREE.Vector2() }
+
+		u_time: { type: "f", value: 1.0 },
+		u_resolution: { type: "v2", value: new THREE.Vector2(800, 800) },
+		u_mouse: { type: "v2", value: new THREE.Vector2() }
 	}
 
 	shaderMat = new THREE.ShaderMaterial({
+
 		uniforms: uniforms,
 		side: THREE.DoubleSide,
 	})
@@ -123,6 +128,7 @@ function initScene() {
 
     // Loads the texture for the left ice cream
     new THREE.TextureLoader().load(leftTexturePath, (texture) => {
+
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
 
@@ -130,13 +136,16 @@ function initScene() {
 
         const modelLoader = new GLTFLoader()
         modelLoader.load(leftModelPath, (gltf) => {
+
             leftIceCream = gltf.scene
 
             interface gltfMesh extends THREE.Object3D<THREE.Event> {
+
                 material: THREE.Material
             }
 
             leftIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+
                 (child as gltfMesh).material = leftTextureMaterial
             })
 
@@ -153,6 +162,7 @@ function initScene() {
 
     // Loads the texture for the middle ice cream
     new THREE.TextureLoader().load(middleTexturePath, (texture) => {
+
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping
         texture.anisotropy = renderer.capabilities.getMaxAnisotropy()
 
@@ -160,13 +170,16 @@ function initScene() {
 
         const modelLoader = new GLTFLoader()
         modelLoader.load(middleModelPath, (gltf) => {
+
             middleIceCream = gltf.scene
 
             interface gltfMesh extends THREE.Object3D<THREE.Event> {
+
                 material: THREE.Material
             }
 
             middleIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+
                 (child as gltfMesh).material = middleTextureMaterial
             })
 
@@ -190,13 +203,16 @@ function initScene() {
 
         const modelLoader = new GLTFLoader()
         modelLoader.load(rightModelPath, (gltf) => {
+
             rightIceCream = gltf.scene
 
             interface gltfMesh extends THREE.Object3D<THREE.Event> {
+
                 material: THREE.Material
             }
 
             rightIceCream.traverse((child: THREE.Object3D<THREE.Event>) => {
+
                 (child as gltfMesh).material = rightTextureMaterial
             })
 
@@ -213,10 +229,12 @@ function initScene() {
 
     // Controls for moving camera
     controls.addEventListener("dragstart", function (event) {
+
 		event.object.material.emissive.set(0xAAAAAA)
 	})
 
 	controls.addEventListener("dragend", function (event) {
+
 		event.object.material.emissive.set(0x000000)
 	})
 
@@ -227,13 +245,17 @@ function initScene() {
 }
 
 function initListeners() {
+
     window.addEventListener("resize", onWindowResize, false)
 
     window.addEventListener("keydown", (event) => {
+
         const { key } = event
 
         switch (key) {
+
             case "e":
+
                 const win = window.open("", "Canvas Image")
 
                 const { domElement } = renderer
@@ -249,6 +271,7 @@ function initListeners() {
                 break
 
             default:
+
                 break
         }
     })
@@ -256,40 +279,33 @@ function initListeners() {
 
 
     window.electronAPI.rotateXAxis((event: any, value: any) => {
-        // leftIceCream.rotation.x += value * 10
-        // middleIceCream.rotation.x += value * 10
-        // rightIceCream.rotation.x += value * 10
 
-        rotationX = value * 10
+        leftIceCream.rotation.x += value * 10
+        middleIceCream.rotation.x += value * 10
+        rightIceCream.rotation.x += value * 10
     })
 
     window.electronAPI.rotateYAxis((event: any, value: any) => {
-        // leftIceCream.rotation.y += value * 10
-        // middleIceCream.rotation.y += value * 10
-        // rightIceCream.rotation.y += value * 10
 
-        rotationY = value * 10
+        leftIceCream.rotation.y += value * 10
+        middleIceCream.rotation.y += value * 10
+        rightIceCream.rotation.y += value * 10
     })
 }
 
 function onWindowResize() {
+
     camera.aspect = (window.innerWidth / window.innerHeight)
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
 }
 
 function animate() {
+
     requestAnimationFrame(() => {
+
         animate()
     })
-
-        leftIceCream.rotation.x += rotationX
-        middleIceCream.rotation.x += rotationX
-        rightIceCream.rotation.x += rotationX
-
-        leftIceCream.rotation.y += rotationY
-        middleIceCream.rotation.y += rotationY
-        rightIceCream.rotation.y += rotationY
 
     debugCubeMesh.rotation.x -= 0.001
     debugCubeMesh.rotation.z -= 0.001
@@ -304,6 +320,7 @@ function animate() {
 main()
 
 export interface IElectronAPI {
+
 	handleColor: (callback: (event: any, value: any) => void) => void
 
 	rotateXAxis: (callback: (event: any, value: any) => void) => void
@@ -311,7 +328,9 @@ export interface IElectronAPI {
 }
 
 declare global {
+
 	interface Window {
+        
 		electronAPI: IElectronAPI
 	}
 }
