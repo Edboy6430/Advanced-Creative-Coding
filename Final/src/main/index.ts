@@ -3,6 +3,8 @@ import * as path from "path"
 
 // be sure to upload StandardFirmataPlus to your board
 // and run 'npm run rebuild' so johnny-five is compatible
+var argv = require("minimist")(process.argv.slice(2), { default: { show: 1 } })
+
 const five = require("johnny-five")
 const board = new five.Board({
 
@@ -91,6 +93,56 @@ const createWindow = (): void => {
     //   mainWindow.webContents.send('update-position-x', (this.value / 1023.0) * 2.0 - 1.0)
     // })
 
+    
+      // MPR121 3x4 Capacitive Touch Shield
+      var touchpad: any
+    
+      if (argv.show === 1) {
+
+        touchpad = new five.Touchpad({
+          
+          controller: "MPR121_SHIELD"
+        })
+      }
+    
+      if (argv.show === 2) {
+
+        touchpad = new five.Touchpad({
+
+          controller: "MPR121_SHIELD",
+          keys: [
+            ["!", "@", "#"],
+            ["$", "%", "^"],
+            ["&", "-", "+"],
+            ["_", "=", ":"]
+          ]
+        })
+      }
+    
+      if (argv.show === 3) {
+
+        touchpad = new five.Touchpad({
+
+          controller: "MPR121_SHIELD",
+          keys: ["!", "@", "#", "$", "%", "^", "&", "-", "+", "_", "=", ":"]
+        })
+      }
+    
+      // ["change", "press", "hold", "release"].forEach(function(eventType) {
+      ["press", "hold"].forEach(function(eventType) {
+
+        touchpad.on(eventType, function(event: any) {
+
+          console.log("Event: %s, Target: %s", eventType, event.which)
+
+          console.log("event.which: " + String(event.which))
+
+          mainWindow.webContents.send("left-player-touch-movement", Number(event.which))
+          mainWindow.webContents.send("right-player-touch-movement", Number(event.which))
+        })
+      })
+    
+
 
 
     let joystick = new five.Joystick({
@@ -100,10 +152,10 @@ const createWindow = (): void => {
 
     joystick.on("change", function() {
       
-      console.log("Joystick")
-      console.log("x: " + String(this.x))
-      console.log("y: " + String(this.y))
-      console.log("\n")
+      // console.log("Joystick")
+      // console.log("x: " + String(this.x))
+      // console.log("y: " + String(this.y))
+      // console.log("\n")
 
       mainWindow.webContents.send("rotate-x-axis", this.x / 100)
       mainWindow.webContents.send("rotate-y-axis", this.y / 100)

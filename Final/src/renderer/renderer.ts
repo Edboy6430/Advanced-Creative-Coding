@@ -2,21 +2,77 @@ import "./index.css"
 import * as THREE from "three"
 import Stats from "three/examples/jsm/libs/stats.module"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
-import { BoxGeometry, SphereGeometry, MeshNormalMaterial, ShaderMaterial, Mesh } from "three"
+import { Mesh, ShaderMaterial} from "three"
+
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
+import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
+// import { helvetikerBold } from "three/examples/font/helvetiker_bold.typeface.json"
 
 
 
 let renderer: THREE.WebGLRenderer
 let scene: THREE.Scene
 let camera: THREE.PerspectiveCamera
-
 let lightPoint: THREE.PointLight
-
 let controls: OrbitControls
 let stats: any
+let shaderMat: ShaderMaterial
 
-let debugCubeMesh: THREE.Mesh
+let textGeometry: TextGeometry
+let textMaterial: THREE.MeshPhongMaterial
+let textMesh: THREE.Mesh
+
+const characters = new THREE.Group
+const raycaster = new THREE.Raycaster
+
+
+let text = "Pong"
+const loader = new FontLoader()
+loader.load("./fonts/Work Sans Black_Regular.json", function(font) {
+
+    const fontOptions = {
+
+        font: font,
+        size: 40,
+        height: 5,
+        curveSegements: 12,
+        bevelEnabled: true,
+        bevelThickness: 5,
+        bevelSize: 2,
+        bevelOffset: 2,
+        bevelSegments: 15
+    }
+
+    const letters = Array.from(text)
+    console.log(letters)
+})
+// const fontLoader = new FontLoader()
+// fontLoader.load("/fonts/System_Font_Bold.json", (font) => {
+
+// 	textGeometry = new TextGeometry("Hello three.js! Bum!!!", {
+
+// 		font: font,
+// 		size: 40,
+// 		height: 5
+// 		// curveSegments: 12,
+// 		// bevelEnabled: true,
+// 		// bevelThickness: 10,
+// 		// bevelSize: 8,
+// 		// bevelOffset: 0,
+// 		// bevelSegments: 5
+// 	})
+
+//     textMesh = new THREE.Mesh(textGeometry, [
+
+//         new THREE.MeshNormalMaterial(),
+//         new THREE.MeshPhongMaterial({ color: 0x5C2301 })
+//     ])
+
+//     // textMesh.castShadow = true
+//     // textMesh.scale.set(5, 5, 5)
+
+//     scene.add(textMesh)
+// })
 
 
 
@@ -29,16 +85,18 @@ let rightPlayerMesh: THREE.Mesh
 let pongBallSphere: THREE.Sphere
 let pongBallMesh: THREE.Mesh
 
-let xMovementValue = (Math.random() * 0.01) - 0.01
-let yMovementValue = (Math.random() * 0.01) - 0.01
-console.log("xMovementValue: " + String(xMovementValue))
-console.log("yMovementValue: " + String(yMovementValue))
+let topWallBox3: THREE.Box3
+let topWallMesh: THREE.Mesh
+
+let bottomWallBox3: THREE.Box3
+let bottomWallMesh: THREE.Mesh
+
+let middleLineMesh: THREE.Mesh
 
 
 
-// let exampleTexture: THREE.Texture
-
-let shaderMat: ShaderMaterial
+let xMovementValue = (Math.random() * 0.02) - 0.02
+let yMovementValue = (Math.random() * 0.02) - 0.02
 
 
 
@@ -62,7 +120,7 @@ function initScene() {
     camera = new THREE.PerspectiveCamera(75, (window.innerWidth / window.innerHeight), 0.1, 1000)
     camera.position.z = 5
 
-    renderer = new THREE.WebGLRenderer()
+    renderer = new THREE.WebGLRenderer({ antialias: true })
     renderer.shadowMap.enabled = true
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.setPixelRatio(window.devicePixelRatio)
@@ -111,37 +169,39 @@ function initScene() {
 
 
 
-    // Debug Cube
-    const boxGeometry = new THREE.BoxGeometry()
-    const boxMaterial = new THREE.MeshPhongMaterial({ color: 0xFF00FF })
-    
-    debugCubeMesh = new THREE.Mesh(boxGeometry, boxMaterial)
-
-    debugCubeMesh.scale.set(1, 1, 1)
-
-    // scene.add(debugCubeMesh)
-
-
-
     // Player Objects
-    const playerGeometry = new THREE.BoxGeometry(2, 10, 2, 5, 3)
+    const playerGeometry = new THREE.BoxGeometry(0.5, 2.5, 0.25, 10, 10)
     const playerMaterial = new THREE.MeshNormalMaterial({})
 
     leftPlayerMesh = new THREE.Mesh(playerGeometry, playerMaterial)
     rightPlayerMesh = new THREE.Mesh(playerGeometry, playerMaterial)
 
-    leftPlayerMesh.scale.set(0.25, 0.25, 0.25)
-    rightPlayerMesh.scale.set(0.25, 0.25, 0.25)
-
-    leftPlayerMesh.position.x = -5
-    rightPlayerMesh.position.x = 5
+    leftPlayerMesh.position.x = -6
+    rightPlayerMesh.position.x = 6
 
     // Pong Ball Object
-    const ballGeometry = new THREE.SphereGeometry(1)
+    const ballGeometry = new THREE.SphereGeometry(0.25)
     const ballMaterial = new THREE.MeshNormalMaterial({ })
 
     pongBallMesh = new THREE.Mesh(ballGeometry, ballMaterial)
-    pongBallMesh.scale.set(0.5, 0.5, 0.5)
+
+    // Top and bottom wall objects
+    const wallGeometry = new THREE.BoxGeometry(12, 1, 0.25)
+    const wallMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF })
+
+    topWallMesh = new THREE.Mesh(wallGeometry, wallMaterial)
+    bottomWallMesh = new THREE.Mesh(wallGeometry, wallMaterial)
+
+    topWallMesh.position.y = 4
+    bottomWallMesh.position.y = -4
+
+    // Middle line object
+    const lineGeometry = new THREE.BoxGeometry(0.25, 8, 0.1)
+    const lineMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF })
+
+    middleLineMesh = new THREE.Mesh(lineGeometry, lineMaterial)
+
+    middleLineMesh.position.z = -0.125
 
 
 
@@ -151,6 +211,9 @@ function initScene() {
 
     pongBallSphere = new THREE.Sphere(pongBallMesh.position, 1)
 
+    topWallBox3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
+    bottomWallBox3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
+
     leftPlayerBox3.setFromObject(leftPlayerMesh)
     rightPlayerBox3.setFromObject(rightPlayerMesh)
 
@@ -159,11 +222,20 @@ function initScene() {
 
     pongBallMesh.geometry.computeBoundingSphere()
 
+    topWallMesh.geometry.computeBoundingBox()
+    bottomWallMesh.geometry.computeBoundingBox()
+
 
 
     scene.add(leftPlayerMesh)
     scene.add(rightPlayerMesh)
+
     scene.add(pongBallMesh)
+
+    scene.add(topWallMesh)
+    scene.add(bottomWallMesh)
+
+    scene.add(middleLineMesh)
 
 
 
@@ -190,14 +262,54 @@ function initListeners() {
 
 
 
-    // Movement for the left player
-    window.addEventListener("keydown", leftPlayerMovement)
+    // Capacitive touch movement for the left player
+    window.electronAPI.leftPlayerTouchMovement((event: any, value: any) => {
+
+        if (leftPlayerMesh.position.y < 2) {
+
+            if (value == 8) {
+
+                leftPlayerMesh.position.y += 0.35
+            }
+        }
+
+        if (leftPlayerMesh.position.y > -2) {
+
+            if (value == 5) {
+
+                leftPlayerMesh.position.y -= 0.35
+            }
+        }
+    })
+
+    // Capacitive touch movement for the right player
+    window.electronAPI.rightPlayerTouchMovement((event: any, value: any) => {
+
+        if (rightPlayerMesh.position.y < 2) {
+
+            if (value == 6) {
+
+                rightPlayerMesh.position.y += 0.35
+            }
+        }
+
+        if (rightPlayerMesh.position.y > -2) {
+
+            if (value == 3) {
+
+                rightPlayerMesh.position.y -= 0.35
+            }
+        }
+    })
 
 
 
-    function leftPlayerMovement(event: any) {
+    // Keyboard movement for the left player
+    window.addEventListener("keydown", leftPlayerKeyboardMovement)
 
-        if (leftPlayerMesh.position.y < 4) {
+    function leftPlayerKeyboardMovement(event: any) {
+
+        if (leftPlayerMesh.position.y < 2) {
 
             // keyCode for "W"
             if (event.keyCode == 87) {
@@ -206,7 +318,7 @@ function initListeners() {
             }
         }
 
-        if (leftPlayerMesh.position.y > -4) {
+        if (leftPlayerMesh.position.y > -2) {
 
             // keyCode for "S"
             if (event.keyCode == 83) {
@@ -216,12 +328,12 @@ function initListeners() {
         }
     }
 
-    // Movement for the right player
-    window.addEventListener("keydown", rightPlayerMovement)
+    // Keyboard movement for the right player
+    window.addEventListener("keydown", rightPlayerKeyboardMovement)
 
-    function rightPlayerMovement(event: any) {
+    function rightPlayerKeyboardMovement(event: any) {
 
-        if (rightPlayerMesh.position.y < 4) {
+        if (rightPlayerMesh.position.y < 2) {
 
             // keyCode for "Up"
             if (event.keyCode == 38) {
@@ -230,7 +342,7 @@ function initListeners() {
             }
         }
 
-        if (rightPlayerMesh.position.y > -4) {
+        if (rightPlayerMesh.position.y > -2) {
 
             // keyCode for "Down"
             if (event.keyCode == 40) {
@@ -241,12 +353,16 @@ function initListeners() {
     }
 }
 
+
+
 function onWindowResize() {
 
     camera.aspect = (window.innerWidth / window.innerHeight)
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
 }
+
+
 
 function animate() {
 
@@ -260,15 +376,19 @@ function animate() {
     rightPlayerBox3.copy(rightPlayerMesh.geometry.boundingBox).applyMatrix4(rightPlayerMesh.matrixWorld)
     pongBallSphere.copy(pongBallMesh.geometry.boundingSphere).applyMatrix4(pongBallMesh.matrixWorld)
 
+    topWallBox3.copy(topWallMesh.geometry.boundingBox).applyMatrix4(topWallMesh.matrixWorld)
+    
+    bottomWallBox3.copy(bottomWallMesh.geometry.boundingBox).applyMatrix4(bottomWallMesh.matrixWorld)
+
     // Pong Ball Movement
     pongBallMesh.position.x += xMovementValue
     pongBallMesh.position.y += yMovementValue
 
-    if ((pongBallMesh.position.x < -4) || (pongBallMesh.position.x > 4)) {
-        xMovementValue *= (-1)
-    }
-    if ((pongBallMesh.position.y < -6) || (pongBallMesh.position.y > 6)) {
-        yMovementValue *= (-1)
+    if ((pongBallMesh.position.x < -10) || (pongBallMesh.position.x > 10)) {
+
+        pongBallMesh.position.x = 0
+        xMovementValue = 0
+        yMovementValue = 0
     }
 
 
@@ -277,17 +397,38 @@ function animate() {
 
     if (controls) controls.update()
 
+    checkCollisions()
+
     renderer.render(scene, camera)
 }
 
+
+
+function checkCollisions() {
+
+    if ((pongBallSphere.intersectsBox(leftPlayerBox3)) || (pongBallSphere.intersectsBox(rightPlayerBox3))) {
+
+        xMovementValue *= (-1.05)
+    }
+
+    if ((pongBallSphere.intersectsBox(topWallBox3)) || (pongBallSphere.intersectsBox(bottomWallBox3))) {
+
+        yMovementValue *= (-1.0)
+    }
+}
+
+
+
 main()
+
+
 
 export interface IElectronAPI {
 
 	handleColor: (callback: (event: any, value: any) => void) => void
 
-	rotateXAxis: (callback: (event: any, value: any) => void) => void
-    rotateYAxis: (callback: (event: any, value: any) => void) => void
+	leftPlayerTouchMovement: (callback: (event: any, value: any) => void) => void
+    rightPlayerTouchMovement: (callback: (event: any, value: any) => void) => void
 }
 
 declare global {

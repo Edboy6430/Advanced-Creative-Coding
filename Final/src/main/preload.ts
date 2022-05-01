@@ -5,8 +5,11 @@ import { contextBridge, ipcRenderer } from "electron"
 
 contextBridge.exposeInMainWorld("electronAPI", {
 	
-	handleBackground: (callback: any) => { return ipcRenderer.on("update-background", callback) },
+	handleBackground: (callback: any) => {
+		
+		return ipcRenderer.on("update-background", callback)
+	},
 
-	rotateXAxis: (callback: any) => ipcRenderer.on("rotate-x-axis", callback),
-	rotateYAxis: (callback: any) => ipcRenderer.on("rotate-y-axis", callback)
+	leftPlayerTouchMovement: (callback: any) => ipcRenderer.on("left-player-touch-movement", callback),
+	rightPlayerTouchMovement: (callback: any) => ipcRenderer.on("right-player-touch-movement", callback)
 })
