@@ -6,7 +6,12 @@ import { Mesh, ShaderMaterial} from "three"
 
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
-// import { helvetikerBold } from "three/examples/font/helvetiker_bold.typeface.json"
+
+import workSansBlackRegularPath from "../fonts/Work Sans Black_Regular.json"
+import systemBoldPath from "../fonts/System_Font_Bold.json"
+
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
+import leftModelPath from "./assets/ice_cream_left.gltf"
 
 
 
@@ -17,62 +22,6 @@ let lightPoint: THREE.PointLight
 let controls: OrbitControls
 let stats: any
 let shaderMat: ShaderMaterial
-
-let textGeometry: TextGeometry
-let textMaterial: THREE.MeshPhongMaterial
-let textMesh: THREE.Mesh
-
-const characters = new THREE.Group
-const raycaster = new THREE.Raycaster
-
-
-let text = "Pong"
-const loader = new FontLoader()
-loader.load("./fonts/Work Sans Black_Regular.json", function(font) {
-
-    const fontOptions = {
-
-        font: font,
-        size: 40,
-        height: 5,
-        curveSegements: 12,
-        bevelEnabled: true,
-        bevelThickness: 5,
-        bevelSize: 2,
-        bevelOffset: 2,
-        bevelSegments: 15
-    }
-
-    const letters = Array.from(text)
-    console.log(letters)
-})
-// const fontLoader = new FontLoader()
-// fontLoader.load("/fonts/System_Font_Bold.json", (font) => {
-
-// 	textGeometry = new TextGeometry("Hello three.js! Bum!!!", {
-
-// 		font: font,
-// 		size: 40,
-// 		height: 5
-// 		// curveSegments: 12,
-// 		// bevelEnabled: true,
-// 		// bevelThickness: 10,
-// 		// bevelSize: 8,
-// 		// bevelOffset: 0,
-// 		// bevelSegments: 5
-// 	})
-
-//     textMesh = new THREE.Mesh(textGeometry, [
-
-//         new THREE.MeshNormalMaterial(),
-//         new THREE.MeshPhongMaterial({ color: 0x5C2301 })
-//     ])
-
-//     // textMesh.castShadow = true
-//     // textMesh.scale.set(5, 5, 5)
-
-//     scene.add(textMesh)
-// })
 
 
 
@@ -164,8 +113,26 @@ function initScene() {
 	shaderMat = new THREE.ShaderMaterial( {
 
 		uniforms: uniforms,
-		side: THREE.DoubleSide,
+		side: THREE.DoubleSide
 	} )
+
+
+
+    const fontLoader = new FontLoader()
+    fontLoader.load(workSansBlackRegularPath, (font) => {
+
+        const textGeometry = new TextGeometry("Pong", {
+
+            font: font,
+            size: 40,
+            height: 5
+        })
+    })
+
+    const gilfLoader = new GLTFLoader()
+    fontLoader.load(leftModelPath, (font) => {
+
+    })
 
 
 
