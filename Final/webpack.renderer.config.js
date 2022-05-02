@@ -7,7 +7,7 @@ rules.push({
 });
 
 rules.push({
-  test: /\.(png|svg|jpg|jpeg|gif|frag|vert|gltf)$/i,
+  test: /\.(png|svg|jpg|jpeg|gif|frag|vert|gltf|json)$/i,
   type: 'asset/resource',
 });
 
@@ -17,6 +17,6 @@ module.exports = {
   },
   plugins: plugins,
   resolve: {
-    extensions: ['.js', '.ts', '.jsx', '.tsx', '.css'],
+    extensions: ['.js', '.json', '.ts', '.jsx', '.tsx', '.css'],
   },
 };

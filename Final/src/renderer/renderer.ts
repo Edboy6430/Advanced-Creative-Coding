@@ -4,14 +4,11 @@ import Stats from "three/examples/jsm/libs/stats.module"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import { Mesh, ShaderMaterial} from "three"
 
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
+import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
 
-import workSansBlackRegularPath from "../fonts/Work Sans Black_Regular.json"
-import systemBoldPath from "../fonts/System_Font_Bold.json"
-
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js"
-import leftModelPath from "./assets/ice_cream_left.gltf"
+import workSansBlackRegularPath from "./fonts/Work Sans Black_Regular.json"
+import systemBoldPath from "./fonts/System_Font_Bold.json"
 
 
 
@@ -46,6 +43,11 @@ let middleLineMesh: THREE.Mesh
 
 let xMovementValue = (Math.random() * 0.02) - 0.02
 let yMovementValue = (Math.random() * 0.02) - 0.02
+
+let testText = "Hi there"
+let textMesh: THREE.Mesh
+let textGeometry: TextGeometry
+let textMaterial: THREE.MeshNormalMaterial
 
 
 
@@ -118,20 +120,27 @@ function initScene() {
 
 
 
-    const fontLoader = new FontLoader()
-    fontLoader.load(workSansBlackRegularPath, (font) => {
+    // let textGeometry = new TextGeometry("Pong", {
+        
+    //     font: workSansBlackRegularPath,
+    //     size: 40,
+    //     height: 5
+    // })
+
+    // let textMesh = new THREE.Mesh(textGeometry, textMaterial)
+    // scene.add(textMesh)
+    let fontLoader = new FontLoader().load("./fonts/System_Font_Bold.json", function(text) {
 
         const textGeometry = new TextGeometry("Pong", {
 
-            font: font,
+            font: text,
             size: 40,
             height: 5
         })
-    })
 
-    const gilfLoader = new GLTFLoader()
-    fontLoader.load(leftModelPath, (font) => {
+        let textMesh = new THREE.Mesh(textGeometry, textMaterial)
 
+        scene.add(textMesh)
     })
 
 
