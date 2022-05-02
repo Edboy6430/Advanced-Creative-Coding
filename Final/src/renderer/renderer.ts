@@ -7,8 +7,8 @@ import { Mesh, ShaderMaterial} from "three"
 import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
 
-import workSansBlackRegularPath from "./fonts/Work Sans Black_Regular.json"
-import systemBoldPath from "./fonts/System_Font_Bold.json"
+import workSansBlackRegularPath from "../src/fonts/Work Sans Black_Regular.json"
+import systemBoldPath from "../src/fonts/System_Font_Bold.json"
 
 
 
@@ -44,7 +44,7 @@ let middleLineMesh: THREE.Mesh
 let xMovementValue = (Math.random() * 0.02) - 0.02
 let yMovementValue = (Math.random() * 0.02) - 0.02
 
-let testText = "Hi there"
+let titleText = "Pong!"
 let textMesh: THREE.Mesh
 let textGeometry: TextGeometry
 let textMaterial: THREE.MeshNormalMaterial
@@ -120,28 +120,14 @@ function initScene() {
 
 
 
-    // let textGeometry = new TextGeometry("Pong", {
-        
-    //     font: workSansBlackRegularPath,
-    //     size: 40,
-    //     height: 5
-    // })
+    const fontLoader = new FontLoader()
+    const fontData = fontLoader.parse(systemBoldPath)
 
-    // let textMesh = new THREE.Mesh(textGeometry, textMaterial)
-    // scene.add(textMesh)
-    let fontLoader = new FontLoader().load("./fonts/System_Font_Bold.json", function(text) {
+    textGeometry = new TextGeometry(titleText, {
 
-        const textGeometry = new TextGeometry("Pong", {
-
-            font: text,
-            size: 40,
-            height: 5
-        })
-
-        let textMesh = new THREE.Mesh(textGeometry, textMaterial)
-
-        scene.add(textMesh)
+        font: fontData
     })
+    
 
 
 
