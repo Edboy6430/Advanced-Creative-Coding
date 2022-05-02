@@ -2,13 +2,13 @@ import "./index.css"
 import * as THREE from "three"
 import Stats from "three/examples/jsm/libs/stats.module"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import { Mesh, ShaderMaterial} from "three"
+import { Mesh, MeshPhongMaterial, ShaderMaterial} from "three"
 
-import { Font, FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
+import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
 
-import workSansBlackRegularPath from "../src/fonts/Work Sans Black_Regular.json"
-import systemBoldPath from "../src/fonts/System_Font_Bold.json"
+import systemBoldJSON from "../fonts/System_Font_Bold.json"
+import assetJSON from "./assets/System_Font_Bold.json"
 
 
 
@@ -44,10 +44,12 @@ let middleLineMesh: THREE.Mesh
 let xMovementValue = (Math.random() * 0.02) - 0.02
 let yMovementValue = (Math.random() * 0.02) - 0.02
 
-let titleText = "Pong!"
+
+
 let textMesh: THREE.Mesh
-let textGeometry: TextGeometry
-let textMaterial: THREE.MeshNormalMaterial
+let fontLoader: FontLoader
+// let textGeometry: TextGeometry
+// let textMaterial: THREE.MeshNormalMaterial
 
 
 
@@ -112,22 +114,29 @@ function initScene() {
 		u_mouse: { type: "v2", value: new THREE.Vector2() }
 	}
 
-	shaderMat = new THREE.ShaderMaterial( {
+	shaderMat = new THREE.ShaderMaterial({
 
 		uniforms: uniforms,
 		side: THREE.DoubleSide
-	} )
+	})
 
 
 
-    const fontLoader = new FontLoader()
-    const fontData = fontLoader.parse(systemBoldPath)
+    // TextGeometry here
+    fontLoader = new FontLoader()
+    const fontData = fontLoader.parse(systemBoldJSON)
 
-    textGeometry = new TextGeometry(titleText, {
+    const textGeometry = new TextGeometry("hello", {
 
-        font: fontData
+        font: fontData,
+        size: 0.5,
+        height: 0.5
     })
-    
+
+    const textMaterial = new MeshPhongMaterial({ color: 0x3486AC })
+
+    textMesh = new Mesh(textGeometry, textMaterial)
+    scene.add(textMesh)
 
 
 
