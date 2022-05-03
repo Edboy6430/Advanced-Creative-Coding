@@ -4,12 +4,6 @@ import Stats from "three/examples/jsm/libs/stats.module"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
 import { Mesh, MeshPhongMaterial, ShaderMaterial} from "three"
 
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js"
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js"
-
-import systemBoldJSON from "../fonts/System_Font_Bold.json"
-import assetJSON from "./assets/System_Font_Bold.json"
-
 
 
 let renderer: THREE.WebGLRenderer
@@ -46,13 +40,6 @@ let yMovementValue = (Math.random() * 0.02) - 0.02
 
 
 
-let textMesh: THREE.Mesh
-let fontLoader: FontLoader
-// let textGeometry: TextGeometry
-// let textMaterial: THREE.MeshNormalMaterial
-
-
-
 function main() {
 
     initScene()
@@ -78,6 +65,8 @@ function initScene() {
     renderer.shadowMap.type = THREE.PCFSoftShadowMap
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.setSize(window.innerWidth, window.innerHeight)
+
+
 
     document.body.appendChild(renderer.domElement)
 
@@ -119,24 +108,6 @@ function initScene() {
 		uniforms: uniforms,
 		side: THREE.DoubleSide
 	})
-
-
-
-    // TextGeometry here
-    fontLoader = new FontLoader()
-    const fontData = fontLoader.parse(systemBoldJSON)
-
-    const textGeometry = new TextGeometry("hello", {
-
-        font: fontData,
-        size: 0.5,
-        height: 0.5
-    })
-
-    const textMaterial = new MeshPhongMaterial({ color: 0x3486AC })
-
-    textMesh = new Mesh(textGeometry, textMaterial)
-    scene.add(textMesh)
 
 
 

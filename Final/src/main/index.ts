@@ -57,43 +57,6 @@ const createWindow = (): void => {
 
   board.on("ready", () => {
 
-    let led = new five.Led(13)
-    led.blink(1000)
-
-
-
-    // ipcMain.handle('write:LEDStatus', (event: any ,value: 1|0) => {
-    //   console.log(value)
-    //   if (value === 0) {
-    //     led.off()
-    //   } else {
-    //     led.on()
-    //   }
-    // })
-
-
-
-    // let button = new five.Button(8)
-    // button.on("press", () => {
-    //   console.log("button pressed")
-    //   const color = Math.round(Math.random() * 0xFFFFFF)
-    //   console.log(color)
-    //   mainWindow.webContents.send("update-color", color)
-    // })
-
-
-
-    // let potentiometer = new five.Sensor({
-    //   pin: "A0",
-    //   frequency: 250,
-    //   threshold: 5
-    // })
-    // potentiometer.on("change", function () {
-    //   console.log(this.value / 1023.0)
-    //   mainWindow.webContents.send('update-position-x', (this.value / 1023.0) * 2.0 - 1.0)
-    // })
-
-    
       // MPR121 3x4 Capacitive Touch Shield
       var touchpad: any
     
@@ -104,29 +67,8 @@ const createWindow = (): void => {
           controller: "MPR121_SHIELD"
         })
       }
-    
-      if (argv.show === 2) {
 
-        touchpad = new five.Touchpad({
 
-          controller: "MPR121_SHIELD",
-          keys: [
-            ["!", "@", "#"],
-            ["$", "%", "^"],
-            ["&", "-", "+"],
-            ["_", "=", ":"]
-          ]
-        })
-      }
-    
-      if (argv.show === 3) {
-
-        touchpad = new five.Touchpad({
-
-          controller: "MPR121_SHIELD",
-          keys: ["!", "@", "#", "$", "%", "^", "&", "-", "+", "_", "=", ":"]
-        })
-      }
     
       // ["change", "press", "hold", "release"].forEach(function(eventType) {
       ["press", "hold"].forEach(function(eventType) {
@@ -141,25 +83,6 @@ const createWindow = (): void => {
           mainWindow.webContents.send("right-player-touch-movement", Number(event.which))
         })
       })
-    
-
-
-
-    let joystick = new five.Joystick({
-
-      pins: ["A0", "A1"]
-    })
-
-    joystick.on("change", function() {
-      
-      // console.log("Joystick")
-      // console.log("x: " + String(this.x))
-      // console.log("y: " + String(this.y))
-      // console.log("\n")
-
-      mainWindow.webContents.send("rotate-x-axis", this.x / 100)
-      mainWindow.webContents.send("rotate-y-axis", this.y / 100)
-    })
   })
 
 
