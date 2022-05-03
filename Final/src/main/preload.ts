@@ -13,6 +13,5 @@ contextBridge.exposeInMainWorld("electronAPI", {
 	leftPlayerTouchMovement: (callback: any) => ipcRenderer.on("left-player-touch-movement", callback),
 	rightPlayerTouchMovement: (callback: any) => ipcRenderer.on("right-player-touch-movement", callback),
 
-	startGame: (callback: any) => ipcRenderer.on("start-game", callback),
-	resetGame: (callback: any) => ipcRenderer.on("reset-game", callback)
+	startGame: (callback: any) => ipcRenderer.on("start-game", callback)
 })

@@ -17,26 +17,30 @@ let shaderMat: ShaderMaterial
 
 
 let leftPlayerBox3: THREE.Box3
-let leftPlayerMesh: THREE.Mesh
+let leftPlayerMesh: Mesh
 
 let rightPlayerBox3: THREE.Box3
-let rightPlayerMesh: THREE.Mesh
+let rightPlayerMesh: Mesh
 
 let pongBallSphere: THREE.Sphere
-let pongBallMesh: THREE.Mesh
+let pongBallMesh: Mesh
 
 let topWallBox3: THREE.Box3
-let topWallMesh: THREE.Mesh
+let topWallMesh: Mesh
 
 let bottomWallBox3: THREE.Box3
-let bottomWallMesh: THREE.Mesh
+let bottomWallMesh: Mesh
 
-let middleLineMesh: THREE.Mesh
+let middleLineMesh: Mesh
 
 
 
-let xMovementValue = (Math.random() * 0.02) - 0.02
-let yMovementValue = (Math.random() * 0.02) - 0.02
+let xMovementValue = 0
+let yMovementValue = 0
+
+let resetPosition = false
+// let xMovementValue = (Math.random() * 0.02) - 0.02
+// let yMovementValue = (Math.random() * 0.02) - 0.02
 
 
 
@@ -115,33 +119,39 @@ function initScene() {
     const playerGeometry = new THREE.BoxGeometry(0.5, 2.5, 0.25, 10, 10)
     const playerMaterial = new THREE.MeshNormalMaterial({})
 
-    leftPlayerMesh = new THREE.Mesh(playerGeometry, playerMaterial)
-    rightPlayerMesh = new THREE.Mesh(playerGeometry, playerMaterial)
+    leftPlayerMesh = new Mesh(playerGeometry, playerMaterial)
+    rightPlayerMesh = new Mesh(playerGeometry, playerMaterial)
 
     leftPlayerMesh.position.x = -6
     rightPlayerMesh.position.x = 6
+
+
 
     // Pong Ball Object
     const ballGeometry = new THREE.SphereGeometry(0.25)
     const ballMaterial = new THREE.MeshNormalMaterial({ })
 
-    pongBallMesh = new THREE.Mesh(ballGeometry, ballMaterial)
+    pongBallMesh = new Mesh(ballGeometry, ballMaterial)
+
+
 
     // Top and bottom wall objects
     const wallGeometry = new THREE.BoxGeometry(12, 1, 0.25)
-    const wallMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF })
+    const wallMaterial = new MeshPhongMaterial({ color: 0xFFFFFF })
 
-    topWallMesh = new THREE.Mesh(wallGeometry, wallMaterial)
-    bottomWallMesh = new THREE.Mesh(wallGeometry, wallMaterial)
+    topWallMesh = new Mesh(wallGeometry, wallMaterial)
+    bottomWallMesh = new Mesh(wallGeometry, wallMaterial)
 
     topWallMesh.position.y = 4
     bottomWallMesh.position.y = -4
 
+
+
     // Middle line object
     const lineGeometry = new THREE.BoxGeometry(0.25, 8, 0.1)
-    const lineMaterial = new THREE.MeshPhongMaterial({ color: 0xFFFFFF })
+    const lineMaterial = new MeshPhongMaterial({ color: 0xFFFFFF })
 
-    middleLineMesh = new THREE.Mesh(lineGeometry, lineMaterial)
+    middleLineMesh = new Mesh(lineGeometry, lineMaterial)
 
     middleLineMesh.position.z = -0.125
 
@@ -201,6 +211,23 @@ function initScene() {
 function initListeners() {
 
     window.addEventListener("resize", onWindowResize, false)
+
+
+
+    // Starts the game
+    window.addEventListener("keydown", startGame)
+
+    function startGame(event: any) {
+
+        if ((xMovementValue == 0) && (yMovementValue == 0)) {
+
+            if (event.keyCode == 32) {
+
+                xMovementValue = (Math.random() - 0.50) * 0.075
+                yMovementValue = (Math.random() - 0.50) * 0.050
+            }
+        }
+    }
 
 
 
@@ -323,8 +350,18 @@ function animate() {
     bottomWallBox3.copy(bottomWallMesh.geometry.boundingBox).applyMatrix4(bottomWallMesh.matrixWorld)
 
     // Pong Ball Movement
-    pongBallMesh.position.x += xMovementValue
-    pongBallMesh.position.y += yMovementValue
+    if (resetPosition == false) {
+
+        pongBallMesh.position.x += xMovementValue
+        pongBallMesh.position.y += yMovementValue
+    } else {
+
+        if (resetPosition == true) {
+
+            pongBallMesh.position.x = 0
+            pongBallMesh.position.y = 0
+        }
+    }
 
     if ((pongBallMesh.position.x < -10) || (pongBallMesh.position.x > 10)) {
 
@@ -350,7 +387,7 @@ function checkCollisions() {
 
     if ((pongBallSphere.intersectsBox(leftPlayerBox3)) || (pongBallSphere.intersectsBox(rightPlayerBox3))) {
 
-        xMovementValue *= (-1.05)
+        xMovementValue *= (-1.15)
     }
 
     if ((pongBallSphere.intersectsBox(topWallBox3)) || (pongBallSphere.intersectsBox(bottomWallBox3))) {
@@ -371,6 +408,8 @@ export interface IElectronAPI {
 
 	leftPlayerTouchMovement: (callback: (event: any, value: any) => void) => void
     rightPlayerTouchMovement: (callback: (event: any, value: any) => void) => void
+
+    startGame: (callback: (event: any, value: any) => void) => void
 }
 
 declare global {
