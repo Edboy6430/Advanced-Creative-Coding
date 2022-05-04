@@ -35,6 +35,8 @@ export class StartScreen extends Screen {
 	pongTexture: Texture
 
 	gltfLoader: GLTFLoader
+	
+	textureMaterial: MeshStandardMaterial
 
 
 
@@ -60,7 +62,8 @@ export class StartScreen extends Screen {
 
 			this.pongTexture = texture
 
-			textureMaterial = new MeshBasicMaterial({ map: texture })
+			// textureMaterial = new MeshBasicMaterial({ map: texture })
+			textureMaterial = new MeshNormalMaterial
 
 			const gltfLoader = new GLTFLoader()
 			gltfLoader.load(pongGLTF, (gltf) => {
