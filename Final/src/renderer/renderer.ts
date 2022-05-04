@@ -2,45 +2,41 @@ import "./index.css"
 import * as THREE from "three"
 import Stats from "three/examples/jsm/libs/stats.module"
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js"
-import { Mesh, MeshPhongMaterial, ShaderMaterial} from "three"
+import { ShaderMaterial } from "three"
+import vertexShader from "./assets/shaders/shader.vert"
+import fragmentShader from "./assets/shaders/shader.frag"
+
+import { Screen } from "./Screens/Screen"
+import { StartScreen } from "./Screens/StartScreen"
+import { GameScreen } from "./Screens/GameScreen"
+
+
+
+let model = {
+
+	groupX: 0,
+	groupY: 0,
+	groupAngle: 0,
+	activeScreen: 0,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader
+}
 
 
 
 let renderer: THREE.WebGLRenderer
+let clock = new THREE.Clock()
 let scene: THREE.Scene
 let camera: THREE.PerspectiveCamera
-let lightPoint: THREE.PointLight
 let controls: OrbitControls
 let stats: any
-let shaderMat: ShaderMaterial
 
+let startScreen: StartScreen
+let gameScreen: GameScreen
+let screens: Screen[] = []
 
-
-let leftPlayerBox3: THREE.Box3
-let leftPlayerMesh: Mesh
-
-let rightPlayerBox3: THREE.Box3
-let rightPlayerMesh: Mesh
-
-let pongBallSphere: THREE.Sphere
-let pongBallMesh: Mesh
-
-let topWallBox3: THREE.Box3
-let topWallMesh: Mesh
-
-let bottomWallBox3: THREE.Box3
-let bottomWallMesh: Mesh
-
-let middleLineMesh: Mesh
-
-
-
-let xMovementValue = 0
-let yMovementValue = 0
-
-let resetPosition = false
-// let xMovementValue = (Math.random() * 0.02) - 0.02
-// let yMovementValue = (Math.random() * 0.02) - 0.02
+let leftPlayerScore = 0
+let rightPlayerScore = 0
 
 
 
@@ -70,142 +66,27 @@ function initScene() {
     renderer.setPixelRatio(window.devicePixelRatio)
     renderer.setSize(window.innerWidth, window.innerHeight)
 
-
-
     document.body.appendChild(renderer.domElement)
 
-    controls = new OrbitControls(camera, renderer.domElement)
-
-    const shadowIntensity = 0.25
-
-    lightPoint = new THREE.PointLight(0xFFFFFF)
-    lightPoint.position.set(-0.5, 0.5, 4)
-    lightPoint.castShadow = true
-    lightPoint.intensity = shadowIntensity
-    scene.add(lightPoint)
-
-    const lightPoint2 = lightPoint.clone()
-    lightPoint2.intensity = 1 - shadowIntensity
-    lightPoint2.castShadow = false
-    scene.add(lightPoint2)
-
-    const mapSize = 1024 // Default value: 512
-    const cameraNear = 0.5 // Default value: 0.5
-    const cameraFar = 500 // Default value: 500
-
-    lightPoint.shadow.mapSize.width = mapSize
-    lightPoint.shadow.mapSize.height = mapSize
-    lightPoint.shadow.camera.near = cameraNear
-    lightPoint.shadow.camera.far = cameraFar
 
 
+    startScreen = new StartScreen(model, renderer)
+    startScreen.scene.background = new THREE.Color(0x4E5D94)
+    screens.push(startScreen)
 
-    const uniforms = {
-
-		u_time: { type: "f", value: 1.0 },
-		u_resolution: { type: "v2", value: new THREE.Vector2(800, 800) },
-		u_mouse: { type: "v2", value: new THREE.Vector2() }
-	}
-
-	shaderMat = new THREE.ShaderMaterial({
-
-		uniforms: uniforms,
-		side: THREE.DoubleSide
-	})
-
-
-
-    // Player Objects
-    const playerGeometry = new THREE.BoxGeometry(0.5, 2.5, 0.25, 10, 10)
-    const playerMaterial = new THREE.MeshNormalMaterial({})
-
-    leftPlayerMesh = new Mesh(playerGeometry, playerMaterial)
-    rightPlayerMesh = new Mesh(playerGeometry, playerMaterial)
-
-    leftPlayerMesh.position.x = -6
-    rightPlayerMesh.position.x = 6
-
-
-
-    // Pong Ball Object
-    const ballGeometry = new THREE.SphereGeometry(0.25)
-    const ballMaterial = new THREE.MeshNormalMaterial({ })
-
-    pongBallMesh = new Mesh(ballGeometry, ballMaterial)
-
-
-
-    // Top and bottom wall objects
-    const wallGeometry = new THREE.BoxGeometry(12, 1, 0.25)
-    const wallMaterial = new MeshPhongMaterial({ color: 0xFFFFFF })
-
-    topWallMesh = new Mesh(wallGeometry, wallMaterial)
-    bottomWallMesh = new Mesh(wallGeometry, wallMaterial)
-
-    topWallMesh.position.y = 4
-    bottomWallMesh.position.y = -4
-
-
-
-    // Middle line object
-    const lineGeometry = new THREE.BoxGeometry(0.25, 8, 0.1)
-    const lineMaterial = new MeshPhongMaterial({ color: 0xFFFFFF })
-
-    middleLineMesh = new Mesh(lineGeometry, lineMaterial)
-
-    middleLineMesh.position.z = -0.125
-
-
-
-    // Bounding Boxes and Bounding Sphere
-    leftPlayerBox3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
-    rightPlayerBox3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
-
-    pongBallSphere = new THREE.Sphere(pongBallMesh.position, 1)
-
-    topWallBox3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
-    bottomWallBox3 = new THREE.Box3(new THREE.Vector3(), new THREE.Vector3())
-
-    leftPlayerBox3.setFromObject(leftPlayerMesh)
-    rightPlayerBox3.setFromObject(rightPlayerMesh)
-
-    leftPlayerMesh.geometry.computeBoundingBox()
-    rightPlayerMesh.geometry.computeBoundingBox()
-
-    pongBallMesh.geometry.computeBoundingSphere()
-
-    topWallMesh.geometry.computeBoundingBox()
-    bottomWallMesh.geometry.computeBoundingBox()
-
-
-
-    scene.add(leftPlayerMesh)
-    scene.add(rightPlayerMesh)
-
-    scene.add(pongBallMesh)
-
-    scene.add(topWallMesh)
-    scene.add(bottomWallMesh)
-
-    scene.add(middleLineMesh)
-
-
-
-    // Controls for moving camera
-    controls.addEventListener("dragstart", function (event) {
-
-		event.object.material.emissive.set(0xAAAAAA)
-	})
-
-	controls.addEventListener("dragend", function (event) {
-
-		event.object.material.emissive.set(0x000000)
-	})
+    gameScreen = new GameScreen(model, renderer)
+    gameScreen.scene.background = new THREE.Color(0x4E5D94)
+    screens.push(gameScreen)
 
 
 
     // Init animation
     animate()
+
+
+
+    // Logs the score in console
+    console.log("Score: " + String(leftPlayerScore) + "   |   " + String(rightPlayerScore))
 }
 
 function initListeners() {
@@ -214,17 +95,49 @@ function initListeners() {
 
 
 
+    window.addEventListener("keydown", (event) => {
+		const { key } = event
+
+		switch (key) {
+
+            case "ArrowLeft":
+
+				model.activeScreen = (model.activeScreen - 1)
+
+				if (model.activeScreen < 0) {
+                    
+					model.activeScreen = screens.length - 1;
+				}
+
+				break
+
+			case "ArrowRight":
+
+				model.activeScreen = (model.activeScreen + 1) % screens.length
+
+				break
+
+			default:
+				break
+		}
+	})
+
+
+
     // Starts the game
     window.addEventListener("keydown", startGame)
 
     function startGame(event: any) {
 
-        if ((xMovementValue == 0) && (yMovementValue == 0)) {
+        if ((model.activeScreen == 1)) {
 
-            if (event.keyCode == 32) {
+            if ((gameScreen.xMovementValue == 0) && (gameScreen.yMovementValue == 0)) {
 
-                xMovementValue = (Math.random() - 0.50) * 0.075
-                yMovementValue = (Math.random() - 0.50) * 0.050
+                if (event.keyCode == 32) {
+
+                    gameScreen.xMovementValue = (Math.random() - 0.50) * 0.075
+                    gameScreen.yMovementValue = (Math.random() - 0.50) * 0.050
+                }
             }
         }
     }
@@ -234,19 +147,22 @@ function initListeners() {
     // Capacitive touch movement for the left player
     window.electronAPI.leftPlayerTouchMovement((event: any, value: any) => {
 
-        if (leftPlayerMesh.position.y < 2) {
+        if ((model.activeScreen == 1)) {
 
-            if (value == 8) {
+            if (gameScreen.leftPlayerMesh.position.y < 2) {
 
-                leftPlayerMesh.position.y += 0.35
+                if (value == 8) {
+
+                    gameScreen.leftPlayerMesh.position.y += 0.35
+                }
             }
-        }
 
-        if (leftPlayerMesh.position.y > -2) {
+            if (gameScreen.leftPlayerMesh.position.y > -2) {
 
-            if (value == 5) {
+                if (value == 5) {
 
-                leftPlayerMesh.position.y -= 0.35
+                    gameScreen.leftPlayerMesh.position.y -= 0.35
+                }
             }
         }
     })
@@ -254,19 +170,22 @@ function initListeners() {
     // Capacitive touch movement for the right player
     window.electronAPI.rightPlayerTouchMovement((event: any, value: any) => {
 
-        if (rightPlayerMesh.position.y < 2) {
+        if ((model.activeScreen == 1)) {
 
-            if (value == 6) {
+            if (gameScreen.rightPlayerMesh.position.y < 2) {
 
-                rightPlayerMesh.position.y += 0.35
+                if (value == 6) {
+
+                    gameScreen.rightPlayerMesh.position.y += 0.35
+                }
             }
-        }
 
-        if (rightPlayerMesh.position.y > -2) {
+            if (gameScreen.rightPlayerMesh.position.y > -2) {
 
-            if (value == 3) {
+                if (value == 3) {
 
-                rightPlayerMesh.position.y -= 0.35
+                    gameScreen.rightPlayerMesh.position.y -= 0.35
+                }
             }
         }
     })
@@ -278,21 +197,24 @@ function initListeners() {
 
     function leftPlayerKeyboardMovement(event: any) {
 
-        if (leftPlayerMesh.position.y < 2) {
+        if ((model.activeScreen == 1)) {
 
-            // keyCode for "W"
-            if (event.keyCode == 87) {
+            if (gameScreen.leftPlayerMesh.position.y < 2) {
 
-                leftPlayerMesh.position.y += 0.5
+                // keyCode for "W"
+                if (event.keyCode == 87) {
+
+                    gameScreen.leftPlayerMesh.position.y += 0.5
+                }
             }
-        }
 
-        if (leftPlayerMesh.position.y > -2) {
+            if (gameScreen.leftPlayerMesh.position.y > -2) {
 
-            // keyCode for "S"
-            if (event.keyCode == 83) {
+                // keyCode for "S"
+                if (event.keyCode == 83) {
 
-                leftPlayerMesh.position.y -= 0.5
+                    gameScreen.leftPlayerMesh.position.y -= 0.5
+                }
             }
         }
     }
@@ -302,21 +224,24 @@ function initListeners() {
 
     function rightPlayerKeyboardMovement(event: any) {
 
-        if (rightPlayerMesh.position.y < 2) {
+        if ((model.activeScreen == 1)) {
 
-            // keyCode for "Up"
-            if (event.keyCode == 38) {
+            if (gameScreen.rightPlayerMesh.position.y < 2) {
 
-                rightPlayerMesh.position.y += 0.5
+                // keyCode for "Up"
+                if (event.keyCode == 38) {
+
+                    gameScreen.rightPlayerMesh.position.y += 0.5
+                }
             }
-        }
 
-        if (rightPlayerMesh.position.y > -2) {
+            if (gameScreen.rightPlayerMesh.position.y > -2) {
 
-            // keyCode for "Down"
-            if (event.keyCode == 40) {
+                // keyCode for "Down"
+                if (event.keyCode == 40) {
 
-                rightPlayerMesh.position.y -= 0.5
+                    gameScreen.rightPlayerMesh.position.y -= 0.5
+                }
             }
         }
     }
@@ -329,6 +254,9 @@ function onWindowResize() {
     camera.aspect = (window.innerWidth / window.innerHeight)
     camera.updateProjectionMatrix()
     renderer.setSize(window.innerWidth, window.innerHeight)
+
+    startScreen.onWindowResize()
+    gameScreen.onWindowResize()
 }
 
 
@@ -340,34 +268,61 @@ function animate() {
         animate()
     })
 
-    // Updates bounding boxes and bounding sphere
-    leftPlayerBox3.copy(leftPlayerMesh.geometry.boundingBox).applyMatrix4(leftPlayerMesh.matrixWorld)
-    rightPlayerBox3.copy(rightPlayerMesh.geometry.boundingBox).applyMatrix4(rightPlayerMesh.matrixWorld)
-    pongBallSphere.copy(pongBallMesh.geometry.boundingSphere).applyMatrix4(pongBallMesh.matrixWorld)
 
-    topWallBox3.copy(topWallMesh.geometry.boundingBox).applyMatrix4(topWallMesh.matrixWorld)
+
+    let delta = clock.getDelta()
+
     
-    bottomWallBox3.copy(bottomWallMesh.geometry.boundingBox).applyMatrix4(bottomWallMesh.matrixWorld)
+
+	switch (model.activeScreen) {
+		case 0:
+
+			startScreen.update(clock, delta)
+
+			break
+
+		default:
+
+			break
+	}
+
+
+
+    // Updates bounding boxes and bounding sphere
+    gameScreen.leftPlayerBox3.copy(gameScreen.leftPlayerMesh.geometry.boundingBox).applyMatrix4(gameScreen.leftPlayerMesh.matrixWorld)
+    gameScreen.rightPlayerBox3.copy(gameScreen.rightPlayerMesh.geometry.boundingBox).applyMatrix4(gameScreen.rightPlayerMesh.matrixWorld)
+    gameScreen.pongBallSphere.copy(gameScreen.pongBallMesh.geometry.boundingSphere).applyMatrix4(gameScreen.pongBallMesh.matrixWorld)
+
+    gameScreen.topWallBox3.copy(gameScreen.topWallMesh.geometry.boundingBox).applyMatrix4(gameScreen.topWallMesh.matrixWorld)
+    
+    gameScreen.bottomWallBox3.copy(gameScreen.bottomWallMesh.geometry.boundingBox).applyMatrix4(gameScreen.bottomWallMesh.matrixWorld)
 
     // Pong Ball Movement
-    if (resetPosition == false) {
+    gameScreen.pongBallMesh.position.x += gameScreen.xMovementValue
+    gameScreen.pongBallMesh.position.y += gameScreen.yMovementValue
 
-        pongBallMesh.position.x += xMovementValue
-        pongBallMesh.position.y += yMovementValue
-    } else {
+    if ((gameScreen.pongBallMesh.position.x < -9) || (gameScreen.pongBallMesh.position.x > 9)) {
 
-        if (resetPosition == true) {
+        if (gameScreen.pongBallMesh.position.x < -9) {
 
-            pongBallMesh.position.x = 0
-            pongBallMesh.position.y = 0
+            leftPlayerScore ++
+    
+            console.log("Left Player scores!")
+            console.log("Score: " + String(leftPlayerScore) + "   |   " + String(rightPlayerScore))
         }
-    }
+    
+        if (gameScreen.pongBallMesh.position.x > 9) {
+    
+            rightPlayerScore ++
+    
+            console.log("Right Player scores!")
+            console.log("Score: " + String(leftPlayerScore) + "   |   " + String(rightPlayerScore))
+        }
 
-    if ((pongBallMesh.position.x < -10) || (pongBallMesh.position.x > 10)) {
-
-        pongBallMesh.position.x = 0
-        xMovementValue = 0
-        yMovementValue = 0
+        gameScreen.pongBallMesh.position.x = 0
+        gameScreen.pongBallMesh.position.y = 0
+        gameScreen.xMovementValue = 0
+        gameScreen.yMovementValue = 0
     }
 
 
@@ -376,26 +331,29 @@ function animate() {
 
     if (controls) controls.update()
 
+
+
     checkCollisions()
 
-    renderer.render(scene, camera)
+
+
+    renderer.render(screens[model.activeScreen].scene, screens[model.activeScreen].camera)
 }
 
 
 
 function checkCollisions() {
 
-    if ((pongBallSphere.intersectsBox(leftPlayerBox3)) || (pongBallSphere.intersectsBox(rightPlayerBox3))) {
+    if ((gameScreen.pongBallSphere.intersectsBox(gameScreen.leftPlayerBox3)) || (gameScreen.pongBallSphere.intersectsBox(gameScreen.rightPlayerBox3))) {
 
-        xMovementValue *= (-1.15)
+        gameScreen.xMovementValue *= (-1.15)
     }
 
-    if ((pongBallSphere.intersectsBox(topWallBox3)) || (pongBallSphere.intersectsBox(bottomWallBox3))) {
+    if ((gameScreen.pongBallSphere.intersectsBox(gameScreen.topWallBox3)) || (gameScreen.pongBallSphere.intersectsBox(gameScreen.bottomWallBox3))) {
 
-        yMovementValue *= (-1.0)
+        gameScreen.yMovementValue *= (-1.05)
     }
 }
-
 
 
 main()
