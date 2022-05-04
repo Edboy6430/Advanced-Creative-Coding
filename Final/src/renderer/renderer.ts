@@ -135,7 +135,7 @@ function initListeners() {
 
                 if (event.keyCode == 32) {
 
-                    gameScreen.xMovementValue = (Math.random() - 0.50) * 0.075
+                    gameScreen.xMovementValue = (Math.random() - 0.50) * 0.040
                     gameScreen.yMovementValue = (Math.random() - 0.50) * 0.050
                 }
             }
@@ -153,7 +153,7 @@ function initListeners() {
 
                 if (value == 8) {
 
-                    gameScreen.leftPlayerMesh.position.y += 0.35
+                    gameScreen.leftPlayerMesh.position.y += 0.75
                 }
             }
 
@@ -161,7 +161,7 @@ function initListeners() {
 
                 if (value == 5) {
 
-                    gameScreen.leftPlayerMesh.position.y -= 0.35
+                    gameScreen.leftPlayerMesh.position.y -= 0.75
                 }
             }
         }
@@ -176,7 +176,7 @@ function initListeners() {
 
                 if (value == 6) {
 
-                    gameScreen.rightPlayerMesh.position.y += 0.35
+                    gameScreen.rightPlayerMesh.position.y += 0.75
                 }
             }
 
@@ -184,7 +184,7 @@ function initListeners() {
 
                 if (value == 3) {
 
-                    gameScreen.rightPlayerMesh.position.y -= 0.35
+                    gameScreen.rightPlayerMesh.position.y -= 0.75
                 }
             }
         }
@@ -272,7 +272,7 @@ function animate() {
 
     let delta = clock.getDelta()
 
-    
+
 
 	switch (model.activeScreen) {
 		case 0:

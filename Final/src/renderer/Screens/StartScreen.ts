@@ -85,16 +85,6 @@ export class StartScreen extends Screen {
 			})
 		})
 
-		// let pongMaterial: Material
-		// // Pong GlTF Model
-		// const modelLoader = new GLTFLoader()
-		// modelLoader.load(pongGLTF, (gltf) => {
-
-		// 	this.pongGroup = gltf.scene
-
-		// 	this.pongGroup.scale.set(0.01, 0.01, 0.01)
-		// 	this.scene.add(this.pongGroup)
-		// })
 
 
 		this.lightPoint = new PointLight(0xCCCCCC)

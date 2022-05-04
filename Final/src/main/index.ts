@@ -71,7 +71,8 @@ const createWindow = (): void => {
 
     
       // ["change", "press", "hold", "release"].forEach(function(eventType) {
-      ["press", "hold"].forEach(function(eventType) {
+        // "release", "hold", 
+      ["change", "hold"].forEach(function(eventType) {
 
         touchpad.on(eventType, function(event: any) {
 
