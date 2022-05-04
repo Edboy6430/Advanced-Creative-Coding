@@ -72,16 +72,18 @@ const createWindow = (): void => {
     
       // ["change", "press", "hold", "release"].forEach(function(eventType) {
         // "release", "hold", 
-      ["change", "hold"].forEach(function(eventType) {
+      ["change", "press", "hold", "release"].forEach(function(eventType) {
 
         touchpad.on(eventType, function(event: any) {
 
-          console.log("Event: %s, Target: %s", eventType, event.which)
+          if (eventType == "hold") {
 
-          console.log("event.which: " + String(event.which))
+            // console.log("Event: %s, Target: %s", eventType, event.which)
+            // console.log("event.which: " + String(event.which))
 
-          mainWindow.webContents.send("left-player-touch-movement", Number(event.which))
-          mainWindow.webContents.send("right-player-touch-movement", Number(event.which))
+            mainWindow.webContents.send("left-player-touch-movement", Number(event.which))
+            mainWindow.webContents.send("right-player-touch-movement", Number(event.which))
+          }
         })
       })
   })

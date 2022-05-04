@@ -135,7 +135,7 @@ function initListeners() {
 
                 if (event.keyCode == 32) {
 
-                    gameScreen.xMovementValue = (Math.random() - 0.50) * 0.040
+                    gameScreen.xMovementValue = 0.020
                     gameScreen.yMovementValue = (Math.random() - 0.50) * 0.050
                 }
             }
@@ -151,7 +151,7 @@ function initListeners() {
 
             if (gameScreen.leftPlayerMesh.position.y < 2) {
 
-                if (value == 8) {
+                if (value == 11) {
 
                     gameScreen.leftPlayerMesh.position.y += 0.75
                 }
@@ -159,7 +159,7 @@ function initListeners() {
 
             if (gameScreen.leftPlayerMesh.position.y > -2) {
 
-                if (value == 5) {
+                if (value == 2) {
 
                     gameScreen.leftPlayerMesh.position.y -= 0.75
                 }
@@ -174,7 +174,7 @@ function initListeners() {
 
             if (gameScreen.rightPlayerMesh.position.y < 2) {
 
-                if (value == 6) {
+                if (value == 9) {
 
                     gameScreen.rightPlayerMesh.position.y += 0.75
                 }
@@ -182,7 +182,7 @@ function initListeners() {
 
             if (gameScreen.rightPlayerMesh.position.y > -2) {
 
-                if (value == 3) {
+                if (value == 0) {
 
                     gameScreen.rightPlayerMesh.position.y -= 0.75
                 }
